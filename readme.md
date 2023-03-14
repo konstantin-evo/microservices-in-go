@@ -3,15 +3,52 @@
 This is a sample project for a microservice architecture. Currently, the following services have been partially
 implemented:
 
-* Front-End service displays web pages to test all services.
-* Broker service is an optional single point of entry into the microservice cluster.
-* Authentication service is a simple authentication service, which uses Chi as the router and Postgres as the database.
+| Service        | Description                                                                               |
+|----------------|-------------------------------------------------------------------------------------------|
+| Front-End      | Displays web page to test all services.                                                   |
+| Broker         | Routes requests to the appropriate backend service.                                       |
+| Authentication | A simple authentication service that uses Chi as the router and Postgres as the database. |
+| Logging        | Allows clients to write log entries to a MongoDB database.                                |
 
 The following services will be added later:
 
-* Logging service: Uses a MongoDB database.
 * Listener service: Receives messages from RabbitMQ and acts upon them.
 * Mail service: Takes a JSON payload, converts into a formatted email, and sends it out.
+
+```mermaid
+graph TD
+    subgraph Frontend service
+        Frontend((Frontend))
+    end
+
+    subgraph Broker service
+        Broker((Broker Service))
+        Frontend -- HTTP/HTTPS --> Broker
+    end
+
+    subgraph Auth service
+        Auth((Auth Service))
+        Auth --> PostgreSQL
+    end
+
+    subgraph Logger service
+        Logger((Logger Service))
+        Auth  -- HTTP/HTTPS --> Logger
+        Logger --> MongoDB
+    end
+
+    subgraph PostgreSQL
+        PostgreSQL_Server((PostgreSQL))
+    end
+
+    subgraph MongoDB
+        MongoDB_Server((MongoDB))
+    end
+
+    Frontend -- HTTP/HTTPS --> Broker
+    Broker  -- HTTP/HTTPS --> Auth
+    Broker  -- HTTP/HTTPS --> Logger
+```
 
 #### Table of Contents
 
@@ -24,6 +61,7 @@ The following services will be added later:
         <li><a href="#front-end">Front-end</a></li>
         <li><a href="#broker-service">Broker service</a></li>
         <li><a href="#authentication-service">Authentication Service</a></li>
+        <li><a href="#logger-service">Logger Service</a></li>
       </ul>
     </li>
   </ul>
@@ -62,26 +100,6 @@ The App should now be accessible at `http://localhost`.
 
 ```
 .
-├── authentication-service
-│ ├── cmd
-│ │ └── api
-│ │ ├── handlers.go
-│ │ ├── helpers.go
-│ │ ├── main.go
-│ │ └── routes.go
-│ ├── data
-│ │ └── models.go
-│ ├── authentication-service.dockerfile
-│ └── go.mod
-├── broker-service
-│ ├── cmd
-│ │ └── api
-│ │ ├── handlers.go
-│ │ ├── helpers.go
-│ │ ├── main.go
-│ │ └── routes.go
-│ ├── go.mod
-│ └── broker-service.dockerfile
 ├── front-end
 │ ├── cmd
 │ │ └── web
@@ -91,7 +109,30 @@ The App should now be accessible at `http://localhost`.
 │ │ ├── footer.partial.gohtml
 │ │ ├── header.partial.gohtml
 │ │ └── test.page.gohtml
+│ └──go.mod
+├── broker-service
+│ ├── cmd
+│ │ └── api
+│ │ ├── handlers.go
+│ │ ├── helpers.go
+│ │ ├── main.go
+│ │ └── routes.go
 │ ├── go.mod
+│ └── broker-service.dockerfile
+├── authentication-service
+│ ├── cmd
+│ │ └── api (the same structure as broker-service)
+│ ├── data
+│ │ └── models.go
+│ ├── authentication-service.dockerfile
+│ └── go.mod
+├── logging-service
+│ ├── cmd
+│ │ └── api (the same structure as broker-service)
+│ ├── data
+│ │ └── models.go
+│ ├── logger-service.dockerfile
+│ └── go.mod
 └── project
   └── docker-compose.yml
 ```
@@ -113,8 +154,8 @@ This is a microservices testing application that tests two endpoints: Test Broke
 
 ##### Broker Service
 
-The broker service serves as a proxy between clients and various backend services. It is responsible for authenticating
-clients and routing requests to the appropriate backend service.
+The broker service serves as a proxy between clients and various backend services. It is responsible routing requests to
+the appropriate backend service.
 
 **Endpoints**
 
@@ -251,3 +292,60 @@ The code is structured as follows:
 
 <p align="right">(<a href="#table-of-contents">back to the Table of content</a>)</p>
 
+##### Logger Service
+
+Logging service that allows clients to write log entries to a MongoDB database.
+
+The service is used via Broker for testing use, and directly for other services without interaction with users. For
+example, Auth service send POST request when user successfully authenticated.
+
+**Endpoints**
+
+The following endpoints are available:
+
+`POST /log`
+
+The `/log` endpoint is used to write log entries to the MongoDB database. It expects a JSON payload that contains the
+name and data fields.
+
+Request Example:
+
+```
+POST /log HTTP/1.1
+Content-Type: application/json
+```
+
+```json
+{
+  "name": "info",
+  "data": "This is an info message."
+}
+```
+
+Response Example:
+
+```
+HTTP/1.1 202 Accepted
+Content-Type: application/json
+```
+
+```json
+{
+  "error": false,
+  "message": "The message is successfully logged in the service.",
+  "data": null
+}
+```
+
+**Structure**
+
+The code is structured as follows:
+
+* `cmd/api/main.go` - the main entry point for the application.
+* `cmd/api/routes.go` - the routing and middleware configuration for the application.
+* `cmd/api/handlers.go` - the request handlers for the endpoints.
+* `cmd/api/helpers.go` - some helper functions for parsing JSON, writing JSON responses, and handling errors.
+* `data/models.go` - the database models for the application.
+* `logger-service.dockerfile` - the Dockerfile for the application.
+
+<p align="right">(<a href="#table-of-contents">back to the Table of content</a>)</p>
