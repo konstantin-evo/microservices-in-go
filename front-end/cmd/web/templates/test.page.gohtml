@@ -81,23 +81,18 @@
         }
 
         const handleBrokerBtnClick = () => {
-            const body = {
-                method: 'POST',
+            const payload = {
+                action: "ping",
             }
-            sent.innerHTML = "empty post request";
-            fetch("http:\/\/localhost:8080", body)
-                .then((response) => response.json())
-                .then((data) => {
-                    received.innerHTML = JSON.stringify(data, undefined, 4);
-                    if (data.error) {
-                        console.log(data.message);
-                    } else {
-                        output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
-                    }
-                })
-                .catch((error) => {
-                    output.innerHTML += "<br><br>Error: " + error;
-                })
+            sent.innerHTML = JSON.stringify(payload, undefined, 4);
+            sendRequest(payload, (data) => {
+                received.innerHTML = JSON.stringify(data, undefined, 4);
+                if (data.error) {
+                    output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
+                } else {
+                    output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
+                }
+            });
         }
 
         const sendRequest = (payload, onSuccess) => {
