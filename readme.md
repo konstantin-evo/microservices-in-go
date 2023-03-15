@@ -23,31 +23,30 @@ graph TD
 
     subgraph Broker service
         Broker((Broker Service))
-        Frontend -- HTTP/HTTPS --> Broker
     end
 
-    subgraph Auth service
+    subgraph Authentication service
         Auth((Auth Service))
-        Auth --> PostgreSQL
+        Database
     end
 
     subgraph Logger service
         Logger((Logger Service))
-        Auth  -- HTTP/HTTPS --> Logger
-        Logger --> MongoDB
+        Database_NoSQL
     end
 
-    subgraph PostgreSQL
-        PostgreSQL_Server((PostgreSQL))
+    subgraph Database
+        PostgreSQL
     end
 
-    subgraph MongoDB
-        MongoDB_Server((MongoDB))
+    subgraph Database_NoSQL
+        MongoDB
     end
 
     Frontend -- HTTP/HTTPS --> Broker
-    Broker  -- HTTP/HTTPS --> Auth
-    Broker  -- HTTP/HTTPS --> Logger
+    Auth -- HTTP/HTTPS --> Logger
+    Broker -- HTTP/HTTPS --> Auth
+    Broker -- HTTP/HTTPS --> Logger
 ```
 
 #### Table of Contents
@@ -117,23 +116,14 @@ The App should now be accessible at `http://localhost`.
 │ │ ├── helpers.go
 │ │ ├── main.go
 │ │ └── routes.go
+│ ├── data
+│ │ └── models.go
 │ ├── go.mod
 │ └── broker-service.dockerfile
-├── authentication-service
-│ ├── cmd
-│ │ └── api (the same structure as broker-service)
-│ ├── data
-│ │ └── models.go
-│ ├── authentication-service.dockerfile
-│ └── go.mod
-├── logging-service
-│ ├── cmd
-│ │ └── api (the same structure as broker-service)
-│ ├── data
-│ │ └── models.go
-│ ├── logger-service.dockerfile
-│ └── go.mod
+├── authentication-service (the structure is the same as broker-service)
+├── logging-service (the structure is the same as broker-service)
 └── project
+  ├── Makefile
   └── docker-compose.yml
 ```
 
@@ -143,14 +133,18 @@ The App should now be accessible at `http://localhost`.
 
 ##### Front-end
 
-This project is a front-end service that interacts with microservices in Go. It provides a simple web page with two
-buttons, one for testing the broker service and one for testing the authentication service.
+This project is a front-end service that interacts with microservices in Go.
 
-To use the Front End service, navigate to http://localhost in a web browser.
+The application interface consists of buttons to test each microservice and fields to input authentication details.
 
-This is a microservices testing application that tests two endpoints: Test Broker and Test Auth.
+To test a microservice, click on the corresponding button. The application will send a request to the microservice and
+display the response in the "Received" section. The request payload will be displayed in the "Sent" section.
+
+If an error occurs, the error message will be displayed in the "Logs" section.
 
 <p align="right">(<a href="#table-of-contents">back to the Table of content</a>)</p>
+
+![demo.png](project%2Fsrc%2Fimg%2Fdemo.png)
 
 ##### Broker Service
 
