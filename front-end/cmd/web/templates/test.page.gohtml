@@ -6,25 +6,45 @@
             <div class="col">
                 <h1 class="mt-5">Test microservices</h1>
                 <hr>
-                <a id="brokerBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Broker</a>
-                <a id="authBrokerBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Auth</a>
-                <a id="logBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Log</a>
-
-                <div id="output" class="mt-5" style="outline: 1px solid silver; padding: 2em;">
-                    <span class="text-muted">Output shows here...</span>
+                <div class="row">
+                    <div class="col-md-6">
+                        <a id="brokerBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Broker</a>
+                        <a id="authBrokerBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Auth</a>
+                        <a id="logBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Log</a>
+                        <a id="emailBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Email</a>
+                        <a id="grpcLogBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test GRPC
+                            Log</a>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="email" id="email" class="form-control" placeholder="Email"
+                               value="admin@example.com">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="password" id="password" class="form-control" placeholder="Password"
+                               value="verysecret">
+                    </div>
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="col">
+                <h4 class="mt-5">Logs</h4>
+                <div class="mt-1"
+                     style="outline: 1px solid silver; padding: 2em; max-height: 10em; overflow-y: scroll;">
+                    <pre id="output"><span class="text-muted">Output shows here...</span></pre>
+                </div>
+            </div>
+        </div>
+        <div class="row align-items-stretch">
+            <div class="col d-flex flex-column">
                 <h4 class="mt-5">Sent</h4>
-                <div class="mt-1" style="outline: 1px solid silver; padding: 2em;">
+                <div class="mt-1 flex-fill" style="outline: 1px solid silver; padding: 2em;">
                     <pre id="payload"><span class="text-muted">Nothing sent yet...</span></pre>
                 </div>
             </div>
-            <div class="col">
+            <div class="col d-flex flex-column">
                 <h4 class="mt-5">Received</h4>
-                <div class="mt-1" style="outline: 1px solid silver; padding: 2em;">
+                <div class="mt-1 flex-fill" style="outline: 1px solid silver; padding: 2em;">
                     <pre id="received"><span class="text-muted">Nothing received yet...</span></pre>
                 </div>
             </div>
@@ -62,11 +82,14 @@
         }
 
         const handleAuthBtnClick = () => {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
             const payload = {
                 action: "auth",
                 auth: {
-                    email: "admin@example.com",
-                    password: "verysecret!",
+                    email: email,
+                    password: password,
                 }
             }
             sent.innerHTML = JSON.stringify(payload, undefined, 4);
@@ -81,23 +104,18 @@
         }
 
         const handleBrokerBtnClick = () => {
-            const body = {
-                method: 'POST',
+            const payload = {
+                action: "ping",
             }
-            sent.innerHTML = "empty post request";
-            fetch("http:\/\/localhost:8080", body)
-                .then((response) => response.json())
-                .then((data) => {
-                    received.innerHTML = JSON.stringify(data, undefined, 4);
-                    if (data.error) {
-                        console.log(data.message);
-                    } else {
-                        output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
-                    }
-                })
-                .catch((error) => {
-                    output.innerHTML += "<br><br>Error: " + error;
-                })
+            sent.innerHTML = JSON.stringify(payload, undefined, 4);
+            sendRequest(payload, (data) => {
+                received.innerHTML = JSON.stringify(data, undefined, 4);
+                if (data.error) {
+                    output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
+                } else {
+                    output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
+                }
+            });
         }
 
         const sendRequest = (payload, onSuccess) => {

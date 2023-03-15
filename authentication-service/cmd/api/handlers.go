@@ -8,40 +8,43 @@ import (
 	"net/http"
 )
 
+type authenticationRequestPayload struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type authenticationResponsePayload struct {
+	Error   bool   `json:"error"`
+	Message string `json:"message"`
+	Data    any    `json:"data"`
+}
+
 func (app *Config) Authenticate(w http.ResponseWriter, r *http.Request) {
-
-	var requestPayload struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
-
-	err := app.readJSON(w, r, &requestPayload)
-	if err != nil {
+	var requestPayload authenticationRequestPayload
+	if err := app.readJSON(w, r, &requestPayload); err != nil {
 		app.errorJSON(w, err, http.StatusBadRequest)
 		return
 	}
 
-	// validate the user against the database
+	// Validate the user against the database
 	user, err := app.Models.User.GetByEmail(requestPayload.Email)
 	if err != nil {
-		app.errorJSON(w, errors.New("user not exist"), http.StatusUnauthorized)
+		app.errorJSON(w, errors.New("user does not exist"), http.StatusUnauthorized)
 		return
 	}
 
-	valid, err := user.PasswordMatches(requestPayload.Password)
-	if err != nil || !valid {
+	if valid, err := user.PasswordMatches(requestPayload.Password); err != nil || !valid {
 		app.errorJSON(w, errors.New("invalid credentials"), http.StatusUnauthorized)
 		return
 	}
 
-	// log authentication
-	err = app.logRequest("authentication", fmt.Sprintf("%s logged in", user.Email))
-	if err != nil {
+	// Log authentication
+	if err := app.logRequest("authentication", fmt.Sprintf("%s logged in", user.Email)); err != nil {
 		app.errorJSON(w, err)
 		return
 	}
 
-	responsePayload := jsonResponse{
+	responsePayload := authenticationResponsePayload{
 		Error:   false,
 		Message: fmt.Sprintf("Logged in user %s", user.Email),
 		Data:    user,
@@ -50,27 +53,30 @@ func (app *Config) Authenticate(w http.ResponseWriter, r *http.Request) {
 	app.writeJSON(w, http.StatusAccepted, responsePayload)
 }
 
-func (app *Config) logRequest(name, data string) error {
+type logEntry struct {
+	Name string `json:"name"`
+	Data string `json:"data"`
+}
 
-	var entry struct {
-		Name string `json:"name"`
-		Data string `json:"data"`
+func (app *Config) logRequest(name, data string) error {
+	entry := logEntry{
+		Name: name,
+		Data: data,
 	}
 
-	entry.Name = name
-	entry.Data = data
+	jsonData, err := json.MarshalIndent(entry, "", "\t")
+	if err != nil {
+		return err
+	}
 
-	jsonData, _ := json.MarshalIndent(entry, "", "\t")
 	logServiceURL := "http://logger-service/log"
-
-	request, err := http.NewRequest("POST", logServiceURL, bytes.NewBuffer(jsonData))
+	request, err := http.NewRequest(http.MethodPost, logServiceURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err
 	}
 
 	client := &http.Client{}
-	_, err = client.Do(request)
-	if err != nil {
+	if _, err := client.Do(request); err != nil {
 		return err
 	}
 
