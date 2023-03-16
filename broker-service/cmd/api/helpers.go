@@ -27,6 +27,7 @@ func (app *Config) readJSON(w http.ResponseWriter, r *http.Request, requestPaylo
 		Action string           `json:"action"`
 		Auth   data.AuthPayload `json:"auth,omitempty"`
 		Log    data.LogPayload  `json:"log,omitempty"`
+		Mail   data.MailPayload `json:"mail,omitempty"`
 	}
 
 	err := dec.Decode(&temp)
@@ -43,6 +44,8 @@ func (app *Config) readJSON(w http.ResponseWriter, r *http.Request, requestPaylo
 		action = data.Auth
 	case "log":
 		action = data.Log
+	case "mail":
+		action = data.Mail
 	default:
 		return errors.New("unknown action")
 	}
@@ -53,6 +56,7 @@ func (app *Config) readJSON(w http.ResponseWriter, r *http.Request, requestPaylo
 		payload.Action = action
 		payload.Auth = temp.Auth
 		payload.Log = temp.Log
+		payload.Mail = temp.Mail
 	default:
 		return errors.New("unsupported payload type")
 	}

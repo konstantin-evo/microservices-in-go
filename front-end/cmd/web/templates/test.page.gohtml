@@ -11,7 +11,7 @@
                         <a id="brokerBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Broker</a>
                         <a id="authBrokerBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Auth</a>
                         <a id="logBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Log</a>
-                        <a id="emailBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Email</a>
+                        <a id="mailBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Email</a>
                         <a id="grpcLogBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test GRPC
                             Log</a>
                     </div>
@@ -57,9 +57,48 @@
         const brokerBtn = document.getElementById("brokerBtn");
         const authBtn = document.getElementById("authBrokerBtn");
         const logBtn = document.getElementById("logBtn");
+        const mailBtn = document.getElementById("mailBtn");
         const output = document.getElementById("output");
         const sent = document.getElementById("payload");
         const received = document.getElementById("received");
+
+        const handleMailBtnClick = () => {
+            const email = document.getElementById("email").value;
+
+            const payload = {
+                action: "mail",
+                mail: {
+                    from: "me@example.com",
+                    to: email,
+                    subject: "Test email",
+                    message: "Hello world!",
+                }
+            }
+
+            const headers = new Headers();
+            headers.append("Content-Type", "application/json");
+
+            const body = {
+                method: 'POST',
+                body: JSON.stringify(payload),
+                headers: headers,
+            }
+
+            fetch("http:\/\/localhost:8080/handle", body)
+                .then((response) => response.json())
+                .then((data) => {
+                    sent.innerHTML = JSON.stringify(payload, undefined, 4);
+                    received.innerHTML = JSON.stringify(data, undefined, 4);
+                    if (data.error) {
+                        output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
+                    } else {
+                        output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
+                    }
+                })
+                .catch((error) => {
+                    output.innerHTML += "<br><br>Eror: " + error;
+                })
+        }
 
         const handleLogBtnClick = () => {
             const payload = {
@@ -139,6 +178,7 @@
         logBtn.addEventListener("click", handleLogBtnClick);
         authBtn.addEventListener("click", handleAuthBtnClick);
         brokerBtn.addEventListener("click", handleBrokerBtnClick);
+        mailBtn.addEventListener("click", handleMailBtnClick)
 
     </script>
 {{end}}
