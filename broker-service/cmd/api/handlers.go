@@ -12,6 +12,7 @@ import (
 const (
 	authenticationServiceURL = "http://authentication-service/authenticate"
 	logServiceURL            = "http://logger-service/log"
+	mailServiceURL           = "http://mailer-service/send"
 )
 
 // HandleSubmission is the main point of entry into the broker. It accepts a JSON
@@ -32,6 +33,8 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 		app.authenticate(w, requestPayload.Auth)
 	case data.Log:
 		app.logItem(w, requestPayload.Log)
+	case data.Mail:
+		app.sendMail(w, requestPayload.Mail)
 	default:
 		app.errorJSON(w, errors.New("unknown action"))
 	}
@@ -99,6 +102,54 @@ func (app *Config) authenticate(w http.ResponseWriter, a data.AuthPayload) {
 		return
 	}
 	defer response.Body.Close()
+
+	// create a variable we'll read response.Body into
+	var responsePayload data.ResponsePayload
+
+	// decode the json from the auth service
+	err = json.NewDecoder(response.Body).Decode(&responsePayload)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	if responsePayload.Error {
+		app.errorJSON(w, fmt.Errorf("status code %d: %s", response.StatusCode, responsePayload.Message), http.StatusUnauthorized)
+		return
+	}
+
+	app.writeJSON(w, http.StatusAccepted, responsePayload)
+}
+
+func (app *Config) sendMail(w http.ResponseWriter, msg data.MailPayload) {
+	jsonData, err := json.MarshalIndent(msg, "", "\t")
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	// post to mail service
+	request, err := http.NewRequest(http.MethodPost, mailServiceURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	request.Header.Set(string(data.HeaderContentType), string(data.ContentTypeJSON))
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+	defer response.Body.Close()
+
+	// make sure we get back the right status code
+	if response.StatusCode != http.StatusAccepted {
+		app.errorJSON(w, errors.New("error calling mail service"))
+		return
+	}
 
 	// create a variable we'll read response.Body into
 	var responsePayload data.ResponsePayload

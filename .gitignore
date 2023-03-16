@@ -5,3 +5,4 @@
 /project/db-data/
 /.idea/
 /logging-service/loggerServiceApp
+/mail-service/mailerApp

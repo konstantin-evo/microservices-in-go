@@ -1,7 +1,6 @@
 package main
 
 import (
-	"broker/data"
 	"encoding/json"
 	"errors"
 	"io"
@@ -15,50 +14,15 @@ type jsonResponse struct {
 }
 
 // readJSON tries to read the body of a request and converts it into JSON
-func (app *Config) readJSON(w http.ResponseWriter, r *http.Request, requestPayload any) error {
+func (app *Config) readJSON(w http.ResponseWriter, r *http.Request, data any) error {
 	maxBytes := 1048576 // one megabyte
 
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
 
 	dec := json.NewDecoder(r.Body)
-
-	// Use a temporary struct to decode the request payload
-	var temp struct {
-		Action string           `json:"action"`
-		Auth   data.AuthPayload `json:"auth,omitempty"`
-		Log    data.LogPayload  `json:"log,omitempty"`
-		Mail   data.MailPayload `json:"mail,omitempty"`
-	}
-
-	err := dec.Decode(&temp)
+	err := dec.Decode(data)
 	if err != nil {
 		return err
-	}
-
-	// Convert the string action to an enum value
-	var action data.ActionType
-	switch temp.Action {
-	case "ping":
-		action = data.Ping
-	case "auth":
-		action = data.Auth
-	case "log":
-		action = data.Log
-	case "mail":
-		action = data.Mail
-	default:
-		return errors.New("unknown action")
-	}
-
-	// Copy the decoded values to the output parameter
-	switch payload := requestPayload.(type) {
-	case *data.RequestPayload:
-		payload.Action = action
-		payload.Auth = temp.Auth
-		payload.Log = temp.Log
-		payload.Mail = temp.Mail
-	default:
-		return errors.New("unsupported payload type")
 	}
 
 	err = dec.Decode(&struct{}{})
@@ -70,8 +34,8 @@ func (app *Config) readJSON(w http.ResponseWriter, r *http.Request, requestPaylo
 }
 
 // writeJSON takes a response status code and arbitrary data and writes a json response to the client
-func (app *Config) writeJSON(w http.ResponseWriter, status int, payload any, headers ...http.Header) error {
-	out, err := json.Marshal(payload)
+func (app *Config) writeJSON(w http.ResponseWriter, status int, data any, headers ...http.Header) error {
+	out, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
@@ -82,7 +46,7 @@ func (app *Config) writeJSON(w http.ResponseWriter, status int, payload any, hea
 		}
 	}
 
-	w.Header().Set(string(data.HeaderContentType), string(data.ContentTypeJSON))
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	_, err = w.Write(out)
 	if err != nil {
