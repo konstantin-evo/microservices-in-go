@@ -10,6 +10,8 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
+const rabbitMqUrl = "amqp://guest:guest@rabbitmq"
+
 func main() {
 	// try to connect to rabbitmq
 	connection, err := connect()
@@ -39,9 +41,8 @@ func connect() (*amqp.Connection, error) {
 	var backOff = 1 * time.Second
 	var connection *amqp.Connection
 
-	// don't continue until rabbit is ready
 	for {
-		connectToRabbitMQ, err := amqp.Dial("amqp://guest:guest@localhost")
+		connectToRabbitMQ, err := amqp.Dial(rabbitMqUrl)
 		if err != nil {
 			fmt.Println("RabbitMQ not yet ready... ", err)
 			counts++
