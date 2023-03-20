@@ -1,6 +1,7 @@
 package main
 
 import (
+	"broker/event"
 	"fmt"
 	"log"
 	"math"
@@ -11,69 +12,109 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-const webPort = "80"
-const rabbitMqUrl = "amqp://guest:guest@rabbitmq"
-
 type Config struct {
-	Rabbit *amqp.Connection
+	WebPort                  string
+	AuthenticationServiceURL string
+	MailServiceURL           string
+	LogServiceURL            string
+	RabbitURL                string
+	Rabbit                   *amqp.Connection
 }
 
 func main() {
-	// try to connect to rabbitmq
-	rabbitMqConnection, err := connect()
+	// Load configuration from environment variables or command-line arguments
+	config, err := loadConfig()
 	if err != nil {
-		log.Println(err)
-		os.Exit(1)
+		log.Panic(err)
+	}
+
+	// Connect to RabbitMQ
+	rabbitMqConnection, err := connect(config.RabbitURL)
+	if err != nil {
+		log.Panic(err)
 	}
 	defer rabbitMqConnection.Close()
 
+	// Initialize the app with the configuration
 	app := Config{
-		Rabbit: rabbitMqConnection,
+		WebPort:                  config.WebPort,
+		AuthenticationServiceURL: config.AuthenticationServiceURL,
+		MailServiceURL:           config.MailServiceURL,
+		LogServiceURL:            config.LogServiceURL,
+		RabbitURL:                config.RabbitURL,
+		Rabbit:                   rabbitMqConnection,
 	}
 
-	log.Printf("Starting broker service on port %s\n", webPort)
+	// Initialize the Consumer with the RabbitMQ connection and Logger instance
+	logger := event.NewLogger(app.LogServiceURL)
+	consumer := event.NewConsumer(app.Rabbit, logger)
 
-	// define http server
-	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%s", webPort),
+	// Set up topics you want to listen to
+	topics := []string{"log", "auth", "event"}
+
+	// Listen to the events in a separate goroutine
+	go func() {
+		if err := consumer.Listen(topics); err != nil {
+			log.Panic(err)
+		}
+	}()
+
+	// Start the HTTP server
+	server := &http.Server{
+		Addr:    fmt.Sprintf(":%s", app.WebPort),
 		Handler: app.routes(),
 	}
 
-	// start the server
-	err = srv.ListenAndServe()
-	if err != nil {
+	log.Printf("Starting broker service on port %s\n", app.WebPort)
+	if err := server.ListenAndServe(); err != nil {
 		log.Panic(err)
 	}
 }
 
-func connect() (*amqp.Connection, error) {
-	var counts int64
-	var backOff = 1 * time.Second
-	var connection *amqp.Connection
+func connect(url string) (*amqp.Connection, error) {
+	// Use an exponential backoff to connect to RabbitMQ
+	const maxRetries = 5
+	var counts int
+	var backOff time.Duration
+	var conn *amqp.Connection
+	var err error
 
-	// don't continue until rabbit is ready
 	for {
-		rabbitMqConnection, err := amqp.Dial(rabbitMqUrl)
-		if err != nil {
-			fmt.Println("RabbitMQ not yet ready...")
-			counts++
-		} else {
+		conn, err = amqp.Dial(url)
+		if err == nil {
 			log.Println("Connected to RabbitMQ!")
-			connection = rabbitMqConnection
 			break
 		}
 
-		if counts > 5 {
-			fmt.Println(err)
+		if counts >= maxRetries {
 			return nil, err
 		}
 
+		counts++
+
 		// calculates the backoff time to wait before attempting to reconnect to RabbitMQ using an exponential strategy
 		backOff = time.Duration(math.Pow(float64(counts), 2)) * time.Second
-		log.Println("backing off...")
+		log.Printf("Failed to connect to RabbitMQ. Retrying in %v...", backOff)
 		time.Sleep(backOff)
-		continue
 	}
 
-	return connection, nil
+	return conn, nil
+}
+
+func loadConfig() (*Config, error) {
+	// Use a default value if the environment variable is not set
+	rabbitURL, ok := os.LookupEnv("RABBITMQ_URL")
+	if !ok {
+		rabbitURL = "amqp://guest:guest@rabbitmq"
+	}
+
+	config := &Config{
+		RabbitURL:                rabbitURL,
+		AuthenticationServiceURL: "http://authentication-service/authenticate",
+		MailServiceURL:           "http://mailer-service/send",
+		LogServiceURL:            "http://logger-service/log",
+		WebPort:                  "80",
+	}
+
+	return config, nil
 }

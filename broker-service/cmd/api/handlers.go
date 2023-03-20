@@ -3,16 +3,12 @@ package main
 import (
 	"broker/data"
 	"broker/event"
+	eventData "broker/event/data"
 	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
-)
-
-const (
-	authenticationServiceURL = "http://authentication-service/authenticate"
-	mailServiceURL           = "http://mailer-service/send"
 )
 
 // HandleSubmission is the main point of entry into the broker. It accepts a JSON
@@ -41,7 +37,7 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Config) ping(w http.ResponseWriter) {
-	payload := jsonResponse{
+	payload := data.ResponsePayload{
 		Error:   false,
 		Message: "Hit the broker",
 	}
@@ -55,7 +51,7 @@ func (app *Config) authenticate(w http.ResponseWriter, a data.AuthPayload) {
 	jsonData, _ := json.MarshalIndent(a, "", "\t")
 
 	// call the service
-	request, err := http.NewRequest(http.MethodPost, authenticationServiceURL, bytes.NewBuffer(jsonData))
+	request, err := http.NewRequest(http.MethodPost, app.AuthenticationServiceURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		app.errorJSON(w, err)
 		return
@@ -95,7 +91,7 @@ func (app *Config) sendMail(w http.ResponseWriter, msg data.MailPayload) {
 	}
 
 	// post to mail service
-	request, err := http.NewRequest(http.MethodPost, mailServiceURL, bytes.NewBuffer(jsonData))
+	request, err := http.NewRequest(http.MethodPost, app.MailServiceURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		app.errorJSON(w, err)
 		return
@@ -143,9 +139,10 @@ func (app *Config) logEvent(w http.ResponseWriter, logPayload data.LogPayload) {
 		return
 	}
 
-	var responsePayload jsonResponse
+	var responsePayload data.ResponsePayload
 	responsePayload.Error = false
 	responsePayload.Message = "The event info is sent to the queue."
+	responsePayload.Data = logPayload
 
 	app.writeJSON(w, http.StatusAccepted, responsePayload)
 }
@@ -163,7 +160,7 @@ func (app *Config) pushToQueue(name, msg string) error {
 	}
 
 	eventPayload, _ := json.MarshalIndent(&payload, "", "\t")
-	err = emitter.Push(string(eventPayload), "log.INFO")
+	err = emitter.Push(string(eventPayload), string(eventData.SeverityLog))
 	if err != nil {
 		return err
 	}
