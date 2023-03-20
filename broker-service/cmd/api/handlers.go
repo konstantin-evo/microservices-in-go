@@ -2,6 +2,7 @@ package main
 
 import (
 	"broker/data"
+	"broker/event"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -11,7 +12,6 @@ import (
 
 const (
 	authenticationServiceURL = "http://authentication-service/authenticate"
-	logServiceURL            = "http://logger-service/log"
 	mailServiceURL           = "http://mailer-service/send"
 )
 
@@ -32,7 +32,7 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 	case data.Auth:
 		app.authenticate(w, requestPayload.Auth)
 	case data.Log:
-		app.logItem(w, requestPayload.Log)
+		app.logEvent(w, requestPayload.Log)
 	case data.Mail:
 		app.sendMail(w, requestPayload.Mail)
 	default:
@@ -47,40 +47,6 @@ func (app *Config) ping(w http.ResponseWriter) {
 	}
 
 	_ = app.writeJSON(w, http.StatusOK, payload)
-}
-
-func (app *Config) logItem(w http.ResponseWriter, entry data.LogPayload) {
-	jsonData, _ := json.MarshalIndent(entry, "", "\t")
-
-	request, err := http.NewRequest(http.MethodPost, logServiceURL, bytes.NewBuffer(jsonData))
-	if err != nil {
-		app.errorJSON(w, err)
-		return
-	}
-
-	request.Header.Set(string(data.HeaderContentType), string(data.ContentTypeJSON))
-
-	client := &http.Client{}
-
-	response, err := client.Do(request)
-	if err != nil {
-		app.errorJSON(w, err)
-		return
-	}
-	defer response.Body.Close()
-
-	var responsePayload data.ResponsePayload
-	if err := json.NewDecoder(response.Body).Decode(&responsePayload); err != nil {
-		app.errorJSON(w, err)
-		return
-	}
-
-	if response.StatusCode != http.StatusAccepted {
-		app.errorJSON(w, fmt.Errorf("status code %d: %s", response.StatusCode, responsePayload.Message))
-		return
-	}
-
-	app.writeJSON(w, http.StatusAccepted, responsePayload)
 }
 
 // authenticate calls the authentication microservice and sends back the appropriate response
@@ -167,4 +133,39 @@ func (app *Config) sendMail(w http.ResponseWriter, msg data.MailPayload) {
 	}
 
 	app.writeJSON(w, http.StatusAccepted, responsePayload)
+}
+
+// logEvent logs an event using the logger-service. It makes the call by pushing the data to RabbitMQ.
+func (app *Config) logEvent(w http.ResponseWriter, logPayload data.LogPayload) {
+	err := app.pushToQueue(logPayload.Name, logPayload.Data)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	var responsePayload jsonResponse
+	responsePayload.Error = false
+	responsePayload.Message = "The event info is sent to the queue."
+
+	app.writeJSON(w, http.StatusAccepted, responsePayload)
+}
+
+// pushToQueue pushes a message into RabbitMQ
+func (app *Config) pushToQueue(name, msg string) error {
+	emitter, err := event.NewEventEmitter(app.Rabbit)
+	if err != nil {
+		return err
+	}
+
+	payload := data.LogPayload{
+		Name: name,
+		Data: msg,
+	}
+
+	eventPayload, _ := json.MarshalIndent(&payload, "", "\t")
+	err = emitter.Push(string(eventPayload), "log.INFO")
+	if err != nil {
+		return err
+	}
+	return nil
 }

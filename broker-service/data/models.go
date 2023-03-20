@@ -23,6 +23,7 @@ const (
 	ContentTypeJSON ContentType = "application/json"
 	ContentTypeXML  ContentType = "application/xml"
 	ContentTypeHTML ContentType = "text/html"
+	ContentTypeText ContentType = "text/plain"
 )
 
 type ResponsePayload struct {
