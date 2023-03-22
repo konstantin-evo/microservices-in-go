@@ -3,6 +3,7 @@
 ![MongoDB](https://img.shields.io/badge/MongoDB-4.4.9-blue.svg)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13.5-blue.svg)
 ![MailHog](https://img.shields.io/badge/MailHog-1.0.1-blue.svg)
+![RabbitMQ](https://img.shields.io/badge/RabbitMQ-3.9-blue.svg)
 
 ### Microservices in Go
 
@@ -51,6 +52,7 @@
         <li><a href="#authentication-service">Authentication Service</a></li>
         <li><a href="#logger-service">Logger Service</a></li>
         <li><a href="#logger-service">Mail Service</a></li>
+        <li><a href="#listener-service">Listener Service</a></li>
       </ul>
     </li>
   </ul>
@@ -61,8 +63,8 @@
 Prerequisites:
 
 * Go 1.18
-* MongoDB Compass
 * Docker
+* MongoDB Compass (only to see data in MongoDB database via GUI)
 
 To get started, clone this repository and navigate to the project directory:
 
@@ -83,9 +85,12 @@ cd ./../front-end && env CGO_ENABLED=0 go build -o frontApp ./cmd/web
 
 Endpoints:
 
-1. **Front-end**: the App should now be accessible at http://localhost.
-2. **Mail server**: Emails sent using the Mail Service will be accessible at http://localhost:8025/
-3. **Database**: the "users" database containing user data can be accessed at http://localhost:8089/
+| Service     | URL                     | Credentials                                                              | Description                        |
+|-------------|-------------------------|--------------------------------------------------------------------------|------------------------------------|
+| Front-end   | http://localhost        | -                                                                        | The main application interface     |
+| Mail server | http://localhost:8025/  | -                                                                        | MailHog UI to view captured emails |
+| Database    | http://localhost:8089/  | POSTGRES_USER: postgres, POSTGRES_PASSWORD: password, POSTGRES_DB: users | Access to the users database       |
+| RabbitMQ    | http://localhost:15672/ | guest:guest                                                              | RabbitMQ management console        |
 
 **Note**: To view the data in the "logs" database (used in Logging Service), it is necessary to install MongoDB Compass.
 
@@ -110,12 +115,10 @@ Currently, the following services have been partially implemented:
 | Authentication | A simple authentication service that uses Chi as the router and Postgres as the database. |
 | Logging        | Allows clients to write log entries to a MongoDB database.                                |
 | Mail           | Takes a JSON payload, converts into a formatted email, and sends it out.                  |
-
-The following services will be added later:
-
-* Listener service: Receives messages from RabbitMQ and acts upon them.
+| Listener       | Receives messages from RabbitMQ and acts upon them.                                       |
 
 ```mermaid
+
 graph TD
     subgraph Frontend service
         Frontend((Frontend))
@@ -139,6 +142,10 @@ graph TD
         Mail((Mail Service))
     end
 
+    subgraph Listener service
+        Listener((Listener Service))
+    end
+
     subgraph Database
         PostgreSQL
     end
@@ -149,8 +156,10 @@ graph TD
 
     Frontend -- HTTP/HTTPS --> Broker
     Broker -- HTTP/HTTPS --> Auth
-    Broker -- HTTP/HTTPS --> Logger
     Broker -- HTTP/HTTPS --> Mail
+    Broker -- AMQP --> RabbitMQ
+    RabbitMQ -- AMQP --> Listener
+    Listener -- HTTP/HTTPS --> Logger
     Auth -- HTTP/HTTPS --> Logger
 ```
 
@@ -162,42 +171,78 @@ structure is as follows:
 
 ```
 .
-├── front-end
-│ └── cmd
-│  └── web
-│   ├── main.go
-│   └── templates
-│    ├── base.layout.gohtml
-│    ├── footer.partial.gohtml
-│    ├── header.partial.gohtml
-│    └── test.page.gohtml
-│ └──go.mod
+├── authentication-service
+│   ├── authentication-service.dockerfile
+│   ├── cmd
+│   │   └── api
+│   │       ├── handlers.go
+│   │       ├── helpers.go
+│   │       ├── main.go
+│   │       └── routes.go
+│   ├── data
+│   │   └── models.go
+│   └── go.mod
 ├── broker-service
-│ └── cmd
-│   └── api
-│    ├── handlers.go
-│    ├── helpers.go
-│    ├── main.go
-│    └── routes.go
-│ └── data
-│   └── models.go
-│ ├── go.mod
-│ └── broker-service.dockerfile
-├── authentication-service (the structure is the same as broker-service)
-├── logging-service (the structure is the same as broker-service)
+│   ├── broker-service.dockerfile
+│   ├── cmd
+│   │   └── api
+│   │       ├── handlers.go
+│   │       ├── helpers.go
+│   │       ├── main.go
+│   │       └── routes.go
+│   ├── data
+│   │   └── models.go
+│   ├── event
+│   │   ├── consumer.go
+│   │   ├── data
+│   │   │   └── models.go
+│   │   ├── emitter.go
+│   │   ├── event.go
+│   │   └── logger.go
+│   └── go.mod
+├── front-end
+│   ├── cmd
+│   │   └── web
+│   │       ├── main.go
+│   │       └── templates
+│   │           ├── base.layout.gohtml
+│   │           ├── footer.partial.gohtml
+│   │           ├── header.partial.gohtml
+│   │           └── test.page.gohtml
+│   └── go.mod
+├── listener-service
+│   ├── event
+│   │   ├── consumer.go
+│   │   ├── event.go
+│   │   └── logger.go
+│   ├── go.mod
+│   ├── go.sum
+│   ├── listener-service.dockerfile
+│   └── main.go
+├── logging-service
+│   ├── cmd
+│   │   └── api
+│   │       ├── handlers.go
+│   │       ├── helpers.go
+│   │       ├── main.go
+│   │       └── routes.go
+│   ├── data
+│   │   └── models.go
+│   ├── go.mod
+│   └── logger-service.dockerfile
 ├── mail-service
-│ └── cmd
-│   └── api
-│    ├── handlers.go
-│    ├── helpers.go
-│    ├── mailer.go
-│    ├── main.go
-│    └── routes.go
-├── go.mod
-├── mail-service.dockerfile
-└── templates/
-    ├── mail.html.gohtml
-    └── mail.plain.gohtml
+│   ├── cmd
+│   │   └── api
+│   │       ├── handlers.go
+│   │       ├── helpers.go
+│   │       ├── mailer.go
+│   │       ├── main.go
+│   │       └── routes.go
+│   ├── go.mod
+│   ├── mail-service.dockerfile
+│   └── templates
+│       ├── mail.html.gohtml
+│       └── mail.plain.gohtml
 └── project
   ├── Makefile
   └── docker-compose.yml
@@ -276,6 +321,8 @@ If an error occurs, the error message will be displayed in the "Logs" section.
 
 The broker service serves as a proxy between clients and various backend services. It is responsible routing requests to
 the appropriate backend service.
+
+The broker service utilizes RabbitMQ to handle messaging with logger service.
 
 **Endpoints**
 
@@ -538,5 +585,44 @@ The code is structured as follows:
 * `mail-service.dockerfile`: Dockerfile to containerize the mail service
 * `templates/mail.plain.gohtml`: Plain text email template
 * `templates/mail.html.gohtml`: HTML email template
+
+<p align="right">(<a href="#table-of-contents">back to the Table of content</a>)</p>
+
+##### Listener Service
+
+This is a simple application to listen for and consume messages from RabbitMQ based on specific topics. The application
+is written in Go and uses the RabbitMQ Go client library for communication with RabbitMQ.
+
+Features:
+
+1. Connect to a RabbitMQ server.
+2. Listen for messages with specific topics.
+3. Forward the consumed messages to a log service.
+
+**Structure**
+
+The code is structured as follows:
+
+* `main.go`: Initializes the configuration and connects to RabbitMQ, sets up the consumer, and starts listening for
+  messages.
+* `event/consumer.go`: Contains the Consumer struct and methods for setting up and consuming messages from RabbitMQ.
+* `event/exchange.go`: Contains the function for declaring the topic exchange.
+* `event/queue.go`: Contains the function for declaring a random queue and binding it to the topic exchange.
+* `event/log_event.go`: Contains the function for sending the consumed messages to the log service.
+* `go.mod` and `go.sum`: Go module dependency management files.
+
+**Configuration**
+
+The application uses a simple configuration struct to set up the connection to RabbitMQ and the log service URL:
+
+```
+app := config{
+  RabbitMqURL:   "amqp://guest:guest@rabbitmq",
+  LogServiceURL: "http://logger-service/log",
+  Topics:        []string{"log.INFO", "log.WARNING", "log.ERROR"},
+}
+```
+
+You can modify these values according to your environment.
 
 <p align="right">(<a href="#table-of-contents">back to the Table of content</a>)</p>
