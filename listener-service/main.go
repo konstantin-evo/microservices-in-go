@@ -2,67 +2,75 @@ package main
 
 import (
 	"fmt"
-	"listener/event"
 	"log"
 	"math"
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
+	"listener/event"
 )
 
-const rabbitMqUrl = "amqp://guest:guest@rabbitmq"
+const (
+	maxAttempts = 5
+)
+
+type config struct {
+	RabbitMqURL   string
+	LogServiceURL string
+	Topics        []string
+}
 
 func main() {
-	// try to connect to rabbitmq
-	connection, err := connect()
+	// Load configuration
+	app := config{
+		RabbitMqURL:   "amqp://guest:guest@rabbitmq",
+		LogServiceURL: "http://logger-service/log",
+		Topics:        []string{"log.INFO", "log.WARNING", "log.ERROR"},
+	}
+
+	// Try to connect to RabbitMQ
+	connection, err := connect(app.RabbitMqURL)
 	if err != nil {
 		log.Panic(err)
 	}
 	defer connection.Close()
 
-	// start listening for messages
-	log.Println("Listening for and consuming RabbitMQ messages...")
-
-	// create consumer
-	consumer, err := event.NewConsumer(connection)
+	// Create consumer
+	consumer, err := event.NewConsumer(connection, app.LogServiceURL)
 	if err != nil {
 		panic(err)
 	}
 
-	// watch the queue and consume events
-	err = consumer.Listen([]string{"log.INFO", "log.WARNING", "log.ERROR"})
+	// Start listening for messages
+	log.Println("Listening for and consuming RabbitMQ messages...")
+
+	// Watch the queue and consume events
+	err = consumer.Listen(app.Topics)
 	if err != nil {
 		log.Println(err)
 	}
 }
 
-func connect() (*amqp.Connection, error) {
-	var counts int64
-	var backOff = 1 * time.Second
-	var connection *amqp.Connection
+func connect(RabbitMqURL string) (*amqp.Connection, error) {
+	var (
+		counts  int64
+		backOff = 1 * time.Second
+	)
 
 	for {
-		connectToRabbitMQ, err := amqp.Dial(rabbitMqUrl)
-		if err != nil {
-			fmt.Println("RabbitMQ not yet ready... ", err)
-			counts++
-		} else {
+		connection, err := amqp.Dial(RabbitMqURL)
+		if err == nil {
 			log.Println("Connected to RabbitMQ!")
-			connection = connectToRabbitMQ
-			break
+			return connection, nil
 		}
 
-		if counts > 5 {
-			fmt.Println(err)
-			return nil, err
+		if counts >= maxAttempts {
+			return nil, fmt.Errorf("failed to connect to RabbitMQ after %d attempts: %v", maxAttempts, err)
 		}
 
-		// calculates the backoff time to wait before attempting to reconnect to RabbitMQ using an exponential strategy
+		counts++
 		backOff = time.Duration(math.Pow(float64(counts), 2)) * time.Second
-		log.Println("backing off...")
+		log.Printf("Failed to connect to RabbitMQ. Retrying in %v...", backOff)
 		time.Sleep(backOff)
-		continue
 	}
-
-	return connection, nil
 }
