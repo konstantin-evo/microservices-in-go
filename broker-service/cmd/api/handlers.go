@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/rpc"
 )
 
 // HandleSubmission is the main point of entry into the broker. It accepts a JSON
@@ -29,6 +30,8 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 		app.authenticate(w, requestPayload.Auth)
 	case data.Log:
 		app.logEvent(w, requestPayload.Log)
+	case data.LogGRPC:
+		app.logItemViaRPC(w, requestPayload.Log)
 	case data.Mail:
 		app.sendMail(w, requestPayload.Mail)
 	default:
@@ -165,4 +168,32 @@ func (app *Config) pushToQueue(name, msg string) error {
 		return err
 	}
 	return nil
+}
+
+func (app *Config) logItemViaRPC(w http.ResponseWriter, l data.LogPayload) {
+	client, err := rpc.Dial("tcp", "logger-service:5001")
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	rpcPayload := data.RPCPayload{
+		Name: l.Name,
+		Data: l.Data,
+	}
+
+	var result string
+	err = client.Call("RPCServer.LogInfo", rpcPayload, &result)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	payload := data.ResponsePayload{
+		Error:   false,
+		Message: result,
+		Data:    rpcPayload,
+	}
+
+	app.writeJSON(w, http.StatusAccepted, payload)
 }

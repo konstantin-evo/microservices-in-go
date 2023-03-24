@@ -6,6 +6,7 @@ const (
 	Ping ActionType = iota
 	Auth
 	Log
+	LogGRPC
 	Mail
 )
 
@@ -54,4 +55,9 @@ type MailPayload struct {
 	To      string `json:"to"`
 	Subject string `json:"subject"`
 	Message string `json:"message"`
+}
+
+type RPCPayload struct {
+	Name string
+	Data string
 }

@@ -38,6 +38,8 @@ func (app *Config) readJSON(w http.ResponseWriter, r *http.Request, requestPaylo
 		action = data.Auth
 	case "log":
 		action = data.Log
+	case "logGrpc":
+		action = data.LogGRPC
 	case "mail":
 		action = data.Mail
 	default:
