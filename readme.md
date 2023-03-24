@@ -51,7 +51,7 @@
         <li><a href="#broker-service">Broker service</a></li>
         <li><a href="#authentication-service">Authentication Service</a></li>
         <li><a href="#logger-service">Logger Service</a></li>
-        <li><a href="#logger-service">Mail Service</a></li>
+        <li><a href="#mail-service">Mail Service</a></li>
         <li><a href="#listener-service">Listener Service</a></li>
       </ul>
     </li>
@@ -118,7 +118,6 @@ Currently, the following services have been partially implemented:
 | Listener       | Receives messages from RabbitMQ and acts upon them.                                       |
 
 ```mermaid
-
 graph TD
     subgraph Frontend service
         Frontend((Frontend))
@@ -158,6 +157,7 @@ graph TD
     Broker -- HTTP/HTTPS --> Auth
     Broker -- HTTP/HTTPS --> Mail
     Broker -- AMQP --> RabbitMQ
+    Broker -- RPC --> Logger
     RabbitMQ -- AMQP --> Listener
     Listener -- HTTP/HTTPS --> Logger
     Auth -- HTTP/HTTPS --> Logger
@@ -225,6 +225,7 @@ structure is as follows:
 │   │       ├── handlers.go
 │   │       ├── helpers.go
 │   │       ├── main.go
+│   │       ├── rpc.go
 │   │       └── routes.go
 │   ├── data
 │   │   └── models.go
@@ -319,10 +320,11 @@ If an error occurs, the error message will be displayed in the "Logs" section.
 
 ##### Broker Service
 
-The broker service serves as a proxy between clients and various backend services. It is responsible routing requests to
-the appropriate backend service.
+The broker service serves as a proxy between clients and various backend services. It is responsible for routing
+requests to the appropriate backend service.
 
-The broker service utilizes RabbitMQ to handle messaging with logger service.
+The broker service utilizes RabbitMQ to handle messaging with logger service and also supports RPC communication for
+specific interactions with the Logger Service.
 
 **Endpoints**
 
@@ -377,6 +379,9 @@ Content-Type: application/json
   "message": "unknown action"
 }
 ```
+
+For the Logger Service, the Broker Service supports both RabbitMQ messaging and RPC communication. The Broker Service
+uses the logEvent function for RabbitMQ messaging and the logItemViaRPC function for RPC communication.
 
 <p align="right">(<a href="#table-of-contents">back to the Table of content</a>)</p>
 
@@ -472,10 +477,18 @@ The code is structured as follows:
 
 ##### Logger Service
 
-Logging service that allows clients to write log entries to a MongoDB database.
+The Logger Service is a versatile logging system that allows clients to write log entries to a MongoDB database. It
+supports two primary modes of communication: REST (HTTP) and RPC.
 
-The service is used via Broker for testing use, and directly for other services without interaction with users. For
-example, Auth service send POST request when user successfully authenticated.
+Different services can use the Logger Service in different ways:
+
+1. The Auth Service communicates with the Logger Service via HTTP to send a POST request when a user is successfully
+   authenticated.
+2. On the other hand, the Broker Service utilizes RPC communication to interact with the Logger Service remotely, by
+   calling the LogInfo method of the RPCServer struct.
+
+In summary, the Logger Service provides flexibility in communication methods, enabling various services to interact with
+it seamlessly, whether it be through REST (HTTP) or RPC.
 
 **Endpoints**
 
@@ -518,6 +531,7 @@ The code is structured as follows:
 
 * `cmd/api/main.go` - the main entry point for the application.
 * `cmd/api/routes.go` - the routing and middleware configuration for the application.
+* `cmd/api/rpc.go` - the RPC server implementation and related functions.
 * `cmd/api/handlers.go` - the request handlers for the endpoints.
 * `cmd/api/helpers.go` - some helper functions for parsing JSON, writing JSON responses, and handling errors.
 * `data/models.go` - the database models for the application.
@@ -525,7 +539,7 @@ The code is structured as follows:
 
 <p align="right">(<a href="#table-of-contents">back to the Table of content</a>)</p>
 
-##### Logger Service
+##### Mail Service
 
 This is a simple mail service API, which allows you to send emails using the SMTP protocol.
 
