@@ -1,7 +1,6 @@
 package main
 
 import (
-	"broker/event"
 	"fmt"
 	"log"
 	"math"
@@ -16,7 +15,9 @@ type Config struct {
 	WebPort                  string
 	AuthenticationServiceURL string
 	MailServiceURL           string
-	LogServiceURL            string
+	LogServiceAddress        string
+	LogServiceRPCPort        string
+	LogServiceGRPCPort       string
 	RabbitURL                string
 	Rabbit                   *amqp.Connection
 }
@@ -33,31 +34,24 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
-	defer rabbitMqConnection.Close()
+	defer func(rabbitMqConnection *amqp.Connection) {
+		err := rabbitMqConnection.Close()
+		if err != nil {
+			log.Printf("Error closing RabbitMQ connection: %v", err)
+		}
+	}(rabbitMqConnection)
 
 	// Initialize the app with the configuration
 	app := Config{
 		WebPort:                  config.WebPort,
 		AuthenticationServiceURL: config.AuthenticationServiceURL,
 		MailServiceURL:           config.MailServiceURL,
-		LogServiceURL:            config.LogServiceURL,
+		LogServiceAddress:        config.LogServiceAddress,
+		LogServiceRPCPort:        config.LogServiceRPCPort,
+		LogServiceGRPCPort:       config.LogServiceGRPCPort,
 		RabbitURL:                config.RabbitURL,
 		Rabbit:                   rabbitMqConnection,
 	}
-
-	// Initialize the Consumer with the RabbitMQ connection and Logger instance
-	logger := event.NewLogger(app.LogServiceURL)
-	consumer := event.NewConsumer(app.Rabbit, logger)
-
-	// Set up topics you want to listen to
-	topics := []string{"log", "auth", "event"}
-
-	// Listen to the events in a separate goroutine
-	go func() {
-		if err := consumer.Listen(topics); err != nil {
-			log.Panic(err)
-		}
-	}()
 
 	// Start the HTTP server
 	server := &http.Server{
@@ -112,7 +106,9 @@ func loadConfig() (*Config, error) {
 		RabbitURL:                rabbitURL,
 		AuthenticationServiceURL: "http://authentication-service/authenticate",
 		MailServiceURL:           "http://mailer-service/send",
-		LogServiceURL:            "http://logger-service/log",
+		LogServiceAddress:        "logger-service",
+		LogServiceRPCPort:        "5001",
+		LogServiceGRPCPort:       "50001",
 		WebPort:                  "80",
 	}
 

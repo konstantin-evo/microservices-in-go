@@ -36,6 +36,8 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 		app.authenticate(w, requestPayload.Auth)
 	case data.Log:
 		app.logEvent(w, requestPayload.Log)
+	case data.LogRPC:
+		app.logItemViaRPC(w, requestPayload.Log)
 	case data.LogGRPC:
 		app.logItemViaGRPC(w, requestPayload.Log)
 	case data.Mail:
@@ -55,85 +57,30 @@ func (app *Config) ping(w http.ResponseWriter) {
 }
 
 // authenticate calls the authentication microservice and sends back the appropriate response
-func (app *Config) authenticate(w http.ResponseWriter, a data.AuthPayload) {
-	// create some json we'll send to the auth microservice
-	jsonData, _ := json.MarshalIndent(a, "", "\t")
-
-	// call the service
-	request, err := http.NewRequest(http.MethodPost, app.AuthenticationServiceURL, bytes.NewBuffer(jsonData))
-	if err != nil {
-		app.errorJSON(w, err)
-		return
-	}
-
-	client := &http.Client{}
-	response, err := client.Do(request)
-	if err != nil {
-		app.errorJSON(w, err)
-		return
-	}
-	defer response.Body.Close()
-
-	// create a variable we'll read response.Body into
-	var responsePayload data.ResponsePayload
-
-	// decode the json from the auth service
-	err = json.NewDecoder(response.Body).Decode(&responsePayload)
+func (app *Config) authenticate(w http.ResponseWriter, requestPayload data.AuthPayload) {
+	responsePayload, err := callExternalService(app.AuthenticationServiceURL, requestPayload)
 	if err != nil {
 		app.errorJSON(w, err)
 		return
 	}
 
 	if responsePayload.Error {
-		app.errorJSON(w, fmt.Errorf("status code %d: %s", response.StatusCode, responsePayload.Message), http.StatusUnauthorized)
+		app.errorJSON(w, fmt.Errorf("status code %d: %s", responsePayload.StatusCode, responsePayload.Message), http.StatusUnauthorized)
 		return
 	}
 
 	app.writeJSON(w, http.StatusAccepted, responsePayload)
 }
 
-func (app *Config) sendMail(w http.ResponseWriter, msg data.MailPayload) {
-	jsonData, err := json.MarshalIndent(msg, "", "\t")
-	if err != nil {
-		app.errorJSON(w, err)
-		return
-	}
-
-	// post to mail service
-	request, err := http.NewRequest(http.MethodPost, app.MailServiceURL, bytes.NewBuffer(jsonData))
-	if err != nil {
-		app.errorJSON(w, err)
-		return
-	}
-
-	request.Header.Set(string(data.HeaderContentType), string(data.ContentTypeJSON))
-
-	client := &http.Client{}
-	response, err := client.Do(request)
-	if err != nil {
-		app.errorJSON(w, err)
-		return
-	}
-	defer response.Body.Close()
-
-	// make sure we get back the right status code
-	if response.StatusCode != http.StatusAccepted {
-		app.errorJSON(w, errors.New("error calling mail service"))
-		return
-	}
-
-	// create a variable we'll read response.Body into
-	var responsePayload data.ResponsePayload
-
-	// decode the json from the auth service
-	err = json.NewDecoder(response.Body).Decode(&responsePayload)
+func (app *Config) sendMail(w http.ResponseWriter, requestPayload data.MailPayload) {
+	responsePayload, err := callExternalService(app.MailServiceURL, requestPayload)
 	if err != nil {
 		app.errorJSON(w, err)
 		return
 	}
 
 	if responsePayload.Error {
-		app.errorJSON(w, fmt.Errorf("status code %d: %s", response.StatusCode, responsePayload.Message), http.StatusUnauthorized)
+		app.errorJSON(w, fmt.Errorf("status code %d: %s", responsePayload.StatusCode, responsePayload.Message), http.StatusUnauthorized)
 		return
 	}
 
@@ -176,27 +123,25 @@ func (app *Config) pushToQueue(name, msg string) error {
 	return nil
 }
 
-func (app *Config) logItemViaGRPC(w http.ResponseWriter, l data.LogPayload) {
-	client, err := grpc.Dial("logger-service:50001", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+func (app *Config) logItemViaGRPC(w http.ResponseWriter, requestPayload data.LogPayload) {
+	gRPCaddress := fmt.Sprintf("%s:%s", app.LogServiceAddress, app.LogServiceGRPCPort)
+	client, err := grpc.Dial(gRPCaddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
 	if err != nil {
 		app.errorJSON(w, err)
 		return
 	}
 	defer client.Close()
 
-	GRPCPayload := data.RPCPayload{
-		Name: l.Name,
-		Data: l.Data,
-	}
+	gRPCPayload := data.RPCPayload(requestPayload)
 
 	conn := logs.NewLogServiceClient(client)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	_, err = conn.WriteLog(ctx, &logs.LogRequest{
+	logResponse, err := conn.WriteLog(ctx, &logs.LogRequest{
 		LogEntry: &logs.Log{
-			Name: GRPCPayload.Name,
-			Data: GRPCPayload.Data,
+			Name: gRPCPayload.Name,
+			Data: gRPCPayload.Data,
 		},
 	})
 	if err != nil {
@@ -206,24 +151,22 @@ func (app *Config) logItemViaGRPC(w http.ResponseWriter, l data.LogPayload) {
 
 	payload := data.ResponsePayload{
 		Error:   false,
-		Message: "Logged via GRPC",
-		Data:    GRPCPayload,
+		Message: logResponse.Result,
+		Data:    gRPCPayload,
 	}
 
 	app.writeJSON(w, http.StatusAccepted, payload)
 }
 
-func (app *Config) logItemViaRPC(w http.ResponseWriter, l data.LogPayload) {
-	client, err := rpc.Dial("tcp", "logger-service:5001")
+func (app *Config) logItemViaRPC(w http.ResponseWriter, requestPayload data.LogPayload) {
+	RPCaddress := fmt.Sprintf("%s:%s", app.LogServiceAddress, app.LogServiceRPCPort)
+	client, err := rpc.Dial("tcp", RPCaddress)
 	if err != nil {
 		app.errorJSON(w, err)
 		return
 	}
 
-	rpcPayload := data.RPCPayload{
-		Name: l.Name,
-		Data: l.Data,
-	}
+	rpcPayload := data.RPCPayload(requestPayload)
 
 	var result string
 	err = client.Call("RPCServer.LogInfo", rpcPayload, &result)
@@ -239,4 +182,34 @@ func (app *Config) logItemViaRPC(w http.ResponseWriter, l data.LogPayload) {
 	}
 
 	app.writeJSON(w, http.StatusAccepted, payload)
+}
+
+// util func to send post request with json payload
+func callExternalService(url string, requestPayload interface{}) (data.ResponsePayload, error) {
+	jsonData, err := json.MarshalIndent(requestPayload, "", "\t")
+	if err != nil {
+		return data.ResponsePayload{}, err
+	}
+
+	request, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return data.ResponsePayload{}, err
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		return data.ResponsePayload{}, err
+	}
+	defer response.Body.Close()
+
+	var responsePayload data.ResponsePayload
+	err = json.NewDecoder(response.Body).Decode(&responsePayload)
+	if err != nil {
+		return data.ResponsePayload{}, err
+	}
+
+	responsePayload.StatusCode = response.StatusCode
+
+	return responsePayload, nil
 }
