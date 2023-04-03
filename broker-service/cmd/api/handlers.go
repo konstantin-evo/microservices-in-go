@@ -4,12 +4,18 @@ import (
 	"broker/data"
 	"broker/event"
 	eventData "broker/event/data"
+	"broker/logs"
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"net/rpc"
+	"time"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 // HandleSubmission is the main point of entry into the broker. It accepts a JSON
@@ -31,7 +37,7 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 	case data.Log:
 		app.logEvent(w, requestPayload.Log)
 	case data.LogGRPC:
-		app.logItemViaRPC(w, requestPayload.Log)
+		app.logItemViaGRPC(w, requestPayload.Log)
 	case data.Mail:
 		app.sendMail(w, requestPayload.Mail)
 	default:
@@ -168,6 +174,43 @@ func (app *Config) pushToQueue(name, msg string) error {
 		return err
 	}
 	return nil
+}
+
+func (app *Config) logItemViaGRPC(w http.ResponseWriter, l data.LogPayload) {
+	client, err := grpc.Dial("logger-service:50001", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+	defer client.Close()
+
+	GRPCPayload := data.RPCPayload{
+		Name: l.Name,
+		Data: l.Data,
+	}
+
+	conn := logs.NewLogServiceClient(client)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	_, err = conn.WriteLog(ctx, &logs.LogRequest{
+		LogEntry: &logs.Log{
+			Name: GRPCPayload.Name,
+			Data: GRPCPayload.Data,
+		},
+	})
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	payload := data.ResponsePayload{
+		Error:   false,
+		Message: "Logged via GRPC",
+		Data:    GRPCPayload,
+	}
+
+	app.writeJSON(w, http.StatusAccepted, payload)
 }
 
 func (app *Config) logItemViaRPC(w http.ResponseWriter, l data.LogPayload) {
