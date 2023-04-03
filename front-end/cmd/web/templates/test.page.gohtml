@@ -7,19 +7,21 @@
                 <h1 class="mt-5">Test microservices</h1>
                 <hr>
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-8">
                         <a id="brokerBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Broker</a>
                         <a id="authBrokerBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Auth</a>
-                        <a id="logBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Log</a>
                         <a id="mailBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Email</a>
-                        <a id="grpcLogBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test GRPC
+                        <a id="logBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Log</a>
+                        <a id="rpcLogBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test RPC
+                            Log</a>
+                        <a id="grpcLogBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test gRPC
                             Log</a>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <input type="email" id="email" class="form-control" placeholder="Email"
                                value="admin@example.com">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <input type="password" id="password" class="form-control" placeholder="Password"
                                value="verysecret">
                     </div>
@@ -59,6 +61,7 @@
         const logBtn = document.getElementById("logBtn");
         const mailBtn = document.getElementById("mailBtn");
         const grpcBtn = document.getElementById("grpcLogBtn");
+        const rpcBtn = document.getElementById("rpcLogBtn");
         const output = document.getElementById("output");
         const sent = document.getElementById("payload");
         const received = document.getElementById("received");
@@ -123,9 +126,29 @@
 
         const handleLogGrpcBtnClick = () => {
             const payload = {
-                action: "logGrpc",
+                action: "logGRPC",
                 log: {
                     name: "gRPC event",
+                    data: "Some kind of data",
+                }
+            }
+
+            sent.innerHTML = JSON.stringify(payload, undefined, 4);
+            sendRequest(payload, (data) => {
+                received.innerHTML = JSON.stringify(data, undefined, 4);
+                if (data.error) {
+                    output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
+                } else {
+                    output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
+                }
+            });
+        }
+
+        const handleLogRpcBtnClick = () => {
+            const payload = {
+                action: "logRPC",
+                log: {
+                    name: "RPC event",
                     data: "Some kind of data",
                 }
             }
@@ -196,10 +219,11 @@
                 })
         }
 
-        logBtn.addEventListener("click", handleLogBtnClick);
+        logBtn.addEventListener("click", handleLogBtnClick)
+        rpcBtn.addEventListener("click", handleLogRpcBtnClick)
         grpcBtn.addEventListener("click", handleLogGrpcBtnClick)
-        authBtn.addEventListener("click", handleAuthBtnClick);
-        brokerBtn.addEventListener("click", handleBrokerBtnClick);
+        authBtn.addEventListener("click", handleAuthBtnClick)
+        brokerBtn.addEventListener("click", handleBrokerBtnClick)
         mailBtn.addEventListener("click", handleMailBtnClick)
 
     </script>
