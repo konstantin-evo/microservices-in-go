@@ -92,6 +92,7 @@ services:
       POSTGRES_DB: users
     volumes:
       - ./db-data/postgres/:/var/lib/postgresql/data/
+      - ./src/script/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   mongo:
     image: 'mongo:4.2.16-bionic'
