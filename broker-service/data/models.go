@@ -6,6 +6,7 @@ const (
 	Ping ActionType = iota
 	Auth
 	Log
+	LogRPC
 	LogGRPC
 	Mail
 )
@@ -28,9 +29,10 @@ const (
 )
 
 type ResponsePayload struct {
-	Error   bool        `json:"error"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
+	Error      bool        `json:"error"`
+	Message    string      `json:"message"`
+	Data       interface{} `json:"data,omitempty"`
+	StatusCode int         `json:"statusCode,omitempty"`
 }
 
 type RequestPayload struct {

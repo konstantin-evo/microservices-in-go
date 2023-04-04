@@ -157,7 +157,7 @@ graph TD
     Broker -- HTTP/HTTPS --> Auth
     Broker -- HTTP/HTTPS --> Mail
     Broker -- AMQP --> RabbitMQ
-    Broker -- RPC --> Logger
+    Broker -- gRPC --> Logger
     RabbitMQ -- AMQP --> Listener
     Listener -- HTTP/HTTPS --> Logger
     Auth -- HTTP/HTTPS --> Logger
@@ -171,6 +171,11 @@ structure is as follows:
 
 ```
 .
+├── project
+│ ├── script
+│ │     └── init.sql
+│ ├── Makefile
+│ └── docker-compose.yml
 ├── authentication-service
 │   ├── authentication-service.dockerfile
 │   ├── cmd
@@ -199,6 +204,10 @@ structure is as follows:
 │   │   ├── emitter.go
 │   │   ├── event.go
 │   │   └── logger.go
+│   ├── logs
+│   │   ├── logs.pb.go
+│   │   ├── logs.proto
+│   │   └── logs_grpc.pb.go
 │   └── go.mod
 ├── front-end
 │   ├── cmd
@@ -215,10 +224,9 @@ structure is as follows:
 │   │   ├── consumer.go
 │   │   ├── event.go
 │   │   └── logger.go
-│   ├── go.mod
-│   ├── go.sum
+│   ├── main.go
 │   ├── listener-service.dockerfile
-│   └── main.go
+│   └── go.mod
 ├── logging-service
 │   ├── cmd
 │   │   └── api
@@ -229,24 +237,26 @@ structure is as follows:
 │   │       └── routes.go
 │   ├── data
 │   │   └── models.go
-│   ├── go.mod
-│   └── logger-service.dockerfile
-├── mail-service
-│   ├── cmd
-│   │   └── api
-│   │       ├── handlers.go
-│   │       ├── helpers.go
-│   │       ├── mailer.go
-│   │       ├── main.go
-│   │       └── routes.go
-│   ├── go.mod
-│   ├── mail-service.dockerfile
-│   └── templates
-│       ├── mail.html.gohtml
-│       └── mail.plain.gohtml
-└── project
-  ├── Makefile
-  └── docker-compose.yml
+│   ├── logs
+│   │   ├── logs.pb.go
+│   │   ├── logs.proto
+│   │   └── logs_grpc.pb.go
+│   ├── logger-service.dockerfile
+│   └── go.mod
+└── mail-service
+    ├── cmd
+    │   └── api
+    │       ├── handlers.go
+    │       ├── helpers.go
+    │       ├── mailer.go
+    │       ├── main.go
+    │       └── routes.go
+    ├── go.mod
+    ├── mail-service.dockerfile
+    └── templates
+        ├── mail.html.gohtml
+        └── mail.plain.gohtml
+
 ```
 
 <p align="right">(<a href="#table-of-contents">back to the Table of content</a>)</p>
@@ -323,7 +333,7 @@ If an error occurs, the error message will be displayed in the "Logs" section.
 The broker service serves as a proxy between clients and various backend services. It is responsible for routing
 requests to the appropriate backend service.
 
-The broker service utilizes RabbitMQ to handle messaging with logger service and also supports RPC communication for
+The broker service utilizes RabbitMQ to handle messaging with logger service and also supports gRPC communication for
 specific interactions with the Logger Service.
 
 **Endpoints**
