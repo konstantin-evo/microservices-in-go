@@ -7,3 +7,11 @@
 /logging-service/loggerServiceApp
 /mail-service/mailerApp
 /listener-service/listenerApp
+front-end/.DS_Store
+front-end/cmd/.DS_Store
+listener-service/.DS_Store
+logging-service/.DS_Store
+logging-service/cmd/.DS_Store
+project/.DS_Store
+.DS_Store
+/project/src/k8s/db-data/
