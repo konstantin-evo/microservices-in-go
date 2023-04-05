@@ -16,15 +16,12 @@ import (
 
 const webPort = "80"
 
-var counts int64
-
 type Config struct {
 	DB     *sql.DB
 	Models data.Models
 }
 
 func main() {
-	log.Println("Starting authentication service")
 
 	// connect to DB
 	conn := connectToDB()
@@ -43,6 +40,7 @@ func main() {
 		Handler: app.routes(),
 	}
 
+	log.Printf("Starting Auth service on port: %s", webPort)
 	err := srv.ListenAndServe()
 	if err != nil {
 		log.Panic(err)
@@ -65,11 +63,12 @@ func openDB(dsn string) (*sql.DB, error) {
 
 func connectToDB() *sql.DB {
 	dsn := os.Getenv("DSN")
+	counts := 0
 
 	for {
 		connection, err := openDB(dsn)
 		if err != nil {
-			log.Println("Postgres not yet ready ...")
+			log.Printf("Postgres not yet ready (attempt %d): %s", counts+1, err.Error())
 			counts++
 		} else {
 			log.Println("Connected to Postgres!")
@@ -77,7 +76,7 @@ func connectToDB() *sql.DB {
 		}
 
 		if counts > 10 {
-			log.Println(err)
+			log.Printf("Giving up after %d attempts: %s", counts, err.Error())
 			return nil
 		}
 

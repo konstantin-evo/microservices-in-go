@@ -26,7 +26,6 @@ func main() {
         Handler: routes(app.BrokerURL),
     }
 
-    fmt.Println("Starting front end service on port 80")
     if err := server.ListenAndServe(); err != nil {
         log.Panic(err)
     }

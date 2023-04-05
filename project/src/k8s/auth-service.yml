@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: authentication-service
-        image: "konstantinevo/microservices-with-go:auth-service-1.0.0"
+        image: "konstantinevo/microservices-with-go:auth-service-1.0.1"
         resources:
           requests:
             memory: "64Mi"
