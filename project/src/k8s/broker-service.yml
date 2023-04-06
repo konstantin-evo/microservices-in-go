@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: broker-service
-        image: "konstantinevo/microservices-with-go:broker-1.0.0"
+        image: "konstantinevo/microservices-with-go:broker-service-1.0.0"
         resources:
           requests:
             memory: "64Mi"
