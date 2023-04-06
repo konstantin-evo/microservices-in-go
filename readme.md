@@ -4,6 +4,8 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13.5-blue.svg)
 ![MailHog](https://img.shields.io/badge/MailHog-1.0.1-blue.svg)
 ![RabbitMQ](https://img.shields.io/badge/RabbitMQ-3.9-blue.svg)
+![Docker](https://img.shields.io/badge/Docker-20.10.9-blue.svg)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-1.23-blue.svg)
 
 ### Microservices in Go
 
@@ -40,6 +42,10 @@
 <div class="toc">
   <ul>
     <li><a href="#getting-started">Getting Started</a></li>
+      <ul>
+        <li><a href="#docker-compose">Docker compose</a></li>
+        <li><a href="#kubernetes">Kubernetes</a></li>
+      </ul>
     <li><a href="#about-project">About project</a></li>
       <ul>
         <li><a href="#project-structure">Project Structure</a></li>
@@ -60,18 +66,22 @@
 
 #### Getting Started
 
-Prerequisites:
-
-* Go 1.18
-* Docker
-* MongoDB Compass (only to see data in MongoDB database via GUI)
-
 To get started, clone this repository and navigate to the project directory:
 
 ```
 git clone https://github.com/konstantin-evo/microservices-in-go.git
 cd microservices-in-go
 ```
+
+You can run the application locally using Docker compose or on a Kubernetes cluster.
+
+##### Docker compose
+
+**Prerequisites**:
+
+* Go 1.18
+* Docker
+* MongoDB Compass (only to see data in MongoDB database via GUI)
 
 1. Start the project using docker-compose
 2. Build front-end app
@@ -95,6 +105,31 @@ Endpoints:
 **Note**: To view the data in the "logs" database (used in Logging Service), it is necessary to install MongoDB Compass.
 
 <p>You can find more information about connection to PostgreSQL and MongoDB in the <a href="#environment-variables">Environment Variables</a> section</p>
+
+<p align="right">(<a href="#table-of-contents">back to the Table of content</a>)</p>
+
+##### Kubernetes
+
+**Prerequisites**:
+
+Before getting started, make sure you have the following installed on your machine:
+
+1. Docker
+2. kubectl
+3. A Kubernetes cluster such as Minikube or a cloud provider such as GKE or AKS
+
+Also, ensure that your Kubernetes cluster is properly configured and that you have appropriate permissions to deploy applications to it. If you are using a cloud provider, you may need to configure additional settings such as network policies or load balancers.
+
+The YAML files in the k8s directory define the deployments, services, and ingress resources needed to run the application on Kubernetes.
+
+To run project:
+
+1. Apply all the YAML files in the directory by running the `kubectl apply -f .` command
+2. Wait for all the services to start running.
+
+Once all the services are running, you should be able to access the application by navigating to the URL http://front-end.info
+
+![demo-k8s.gif](project%2Fsrc%2Fimg%2Fdemo-k8s.gif)
 
 <p align="right">(<a href="#table-of-contents">back to the Table of content</a>)</p>
 
@@ -165,17 +200,31 @@ graph TD
 
 ##### Project Structure
 
-This project represents a multi-service application consisting of a front-end, broker-service, authentication-service,
+This project represents a multiservice application consisting of a front-end, broker-service, authentication-service,
 logging-service, and mail-service. Each service has its own Dockerfile and Go module configuration. The directory
 structure is as follows:
 
 ```
 .
 ├── project
-│ ├── script
-│ │     └── init.sql
-│ ├── Makefile
-│ └── docker-compose.yml
+│   ├── Makefile
+│   ├── docker-compose.yml
+│   └── src
+│       ├── k8s
+│       │   ├── all-manifests.yaml
+│       │   ├── auth-service.yml
+│       │   ├── broker-service.yml
+│       │   ├── front-end.yml
+│       │   ├── ingress.yml
+│       │   ├── listener-service.yml
+│       │   ├── logger-service.yml
+│       │   ├── mail-service.yml
+│       │   ├── mailhog.yml
+│       │   ├── mongo.yml
+│       │   ├── postgres.yml
+│       │   └── rabbit.yml
+│       └── script
+│           └── init.sql
 ├── authentication-service
 │   ├── authentication-service.dockerfile
 │   ├── cmd
@@ -218,6 +267,7 @@ structure is as follows:
 │   │           ├── footer.partial.gohtml
 │   │           ├── header.partial.gohtml
 │   │           └── test.page.gohtml
+│   ├── frontend-service.dockerfile
 │   └── go.mod
 ├── listener-service
 │   ├── event
