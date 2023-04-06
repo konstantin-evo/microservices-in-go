@@ -66,6 +66,8 @@
         const sent = document.getElementById("payload");
         const received = document.getElementById("received");
 
+        const brokerURL = "{{.brokerURL}}";
+
         const handleMailBtnClick = () => {
             const email = document.getElementById("email").value;
 
@@ -88,7 +90,7 @@
                 headers: headers,
             }
 
-            fetch("http:\/\/localhost:8080/handle", body)
+            fetch(brokerURL + "/handle", body)
                 .then((response) => response.json())
                 .then((data) => {
                     sent.innerHTML = JSON.stringify(payload, undefined, 4);
@@ -211,7 +213,7 @@
                 headers: headers,
             }
 
-            fetch("http:\/\/localhost:8080/handle", body)
+            fetch(brokerURL + "/handle", body)
                 .then((response) => response.json())
                 .then(onSuccess)
                 .catch((error) => {
