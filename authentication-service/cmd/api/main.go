@@ -17,8 +17,8 @@ import (
 const webPort = "80"
 
 type Config struct {
-	DB     *sql.DB
-	Models data.Models
+	Client *http.Client
+	Repo   data.Repository
 }
 
 func main() {
@@ -31,8 +31,8 @@ func main() {
 
 	// set up config
 	app := Config{
-		DB:     conn,
-		Models: data.New(conn),
+		Client: &http.Client{},
+		Repo:   data.NewPostgresRepository(conn),
 	}
 
 	srv := &http.Server{
