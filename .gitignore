@@ -15,3 +15,10 @@ logging-service/cmd/.DS_Store
 project/.DS_Store
 .DS_Store
 /project/src/k8s/db-data/
+/broker-service/.idea/
+/front-end/.idea/
+/logging-service/.idea/
+/authentication-service/.idea/
+/listener-service/.idea/
+/mail-service/.idea/
+

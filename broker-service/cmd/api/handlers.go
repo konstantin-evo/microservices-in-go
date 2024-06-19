@@ -10,6 +10,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
 	"net/rpc"
 	"time"
@@ -190,6 +192,7 @@ func callExternalService(url string, requestPayload interface{}) (data.ResponseP
 	if err != nil {
 		return data.ResponsePayload{}, err
 	}
+	log.Printf("Outgoing request: %s\nURL: %s\nBody: %s", http.MethodPost, url, string(jsonData))
 
 	request, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonData))
 	if err != nil {
@@ -203,8 +206,14 @@ func callExternalService(url string, requestPayload interface{}) (data.ResponseP
 	}
 	defer response.Body.Close()
 
+	bodyBytes, err := io.ReadAll(response.Body)
+	if err != nil {
+		return data.ResponsePayload{}, err
+	}
+	log.Printf("Response from %s\nStatus: %d\nBody: %s", url, response.StatusCode, string(bodyBytes))
+
 	var responsePayload data.ResponsePayload
-	err = json.NewDecoder(response.Body).Decode(&responsePayload)
+	err = json.Unmarshal(bodyBytes, &responsePayload)
 	if err != nil {
 		return data.ResponsePayload{}, err
 	}
