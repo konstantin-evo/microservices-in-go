@@ -61,6 +61,15 @@ services:
       mode: replicated
       replicas: 1
 
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+
   mailhog:
     image: 'mailhog/mailhog:v1.0.1'
     ports:
@@ -110,3 +119,6 @@ services:
     restart: always
     ports:
       - "8089:8080"
+
+volumes:
+  prometheus_data:

@@ -4,6 +4,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 )
 
@@ -24,6 +25,7 @@ func (app *Config) routes() http.Handler {
 	mux.Use(LoggerMiddleware)
 
 	mux.Post("/handle", app.HandleSubmission)
+	mux.Handle("/metrics", promhttp.Handler())
 
 	return mux
 }
