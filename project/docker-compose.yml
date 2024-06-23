@@ -70,6 +70,21 @@ services:
       - "9090:9090"
     restart: unless-stopped
 
+  grafana:
+    image: grafana/grafana:10.4.4
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_DATASOURCE=prometheus
+    volumes:
+      - ./src/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./db-data/grafana:/var/lib/grafana
+    restart: always
+    depends_on:
+      - prometheus
+
   mailhog:
     image: 'mailhog/mailhog:v1.0.1'
     ports:
