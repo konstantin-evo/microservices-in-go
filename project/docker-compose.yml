@@ -78,6 +78,7 @@ services:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_DATASOURCE=prometheus
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
     volumes:
       - ./src/grafana/provisioning:/etc/grafana/provisioning:ro
       - ./db-data/grafana:/var/lib/grafana
