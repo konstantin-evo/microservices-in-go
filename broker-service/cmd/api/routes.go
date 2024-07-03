@@ -4,7 +4,6 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/penglongli/gin-metrics/ginmetrics"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 	"time"
 )
@@ -14,7 +13,7 @@ func (app *Config) routes() http.Handler {
 
 	// CORS configuration
 	config := cors.Config{
-		AllowOrigins:     []string{"https://*", "http://*"},
+		AllowOrigins:     []string{"http://localhost", "http://localhost:8080"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposeHeaders:    []string{"Link"},
@@ -43,16 +42,10 @@ func (app *Config) routes() http.Handler {
 	// set middleware for gin
 	m.Use(r)
 
-	// Custom logger middleware
-	r.Use(LoggerMiddleware)
-
 	// HandleSubmission endpoint
 	r.POST("/handle", func(c *gin.Context) {
 		app.HandleSubmission(c.Writer, c.Request)
 	})
-
-	// Prometheus' metrics endpoint
-	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	return r
 }
