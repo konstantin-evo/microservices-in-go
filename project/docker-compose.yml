@@ -12,6 +12,15 @@ services:
       mode: replicated
       replicas: 1
 
+  front-service:
+    image: konstantinevo/microservices-in-go-frontend:1.0.0
+    restart: always
+    ports:
+      - "80:80"
+    deploy:
+      mode: replicated
+      replicas: 1
+
   logger-service:
     image: konstantinevo/microservices-in-go-logger:1.0.0
     restart: always
