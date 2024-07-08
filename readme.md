@@ -6,6 +6,8 @@
 ![RabbitMQ](https://img.shields.io/badge/RabbitMQ-3.9-blue.svg)
 ![Docker](https://img.shields.io/badge/Docker-20.10.9-blue.svg)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-1.23-blue.svg)
+![Prometheus](https://img.shields.io/badge/Prometheus-2.5.3-blue.svg)
+![Grafana](https://img.shields.io/badge/Grafana-10.4.4-blue.svg)
 
 ### Microservices in Go
 
@@ -41,15 +43,16 @@
 
 <div class="toc">
   <ul>
-    <li><a href="#getting-started">Getting Started</a></li>
-      <ul>
-        <li><a href="#docker-compose">Docker compose</a></li>
-        <li><a href="#kubernetes">Kubernetes</a></li>
-      </ul>
     <li><a href="#about-project">About project</a></li>
       <ul>
         <li><a href="#project-structure">Project Structure</a></li>
         <li><a href="#environment-variables">Environment Variables</a></li>
+        <li><a href="#monitoring">Monitoring</a></li>
+      </ul>
+    <li><a href="#getting-started">Getting Started</a></li>
+      <ul>
+        <li><a href="#docker-compose">Docker compose</a></li>
+        <li><a href="#kubernetes">Kubernetes</a></li>
       </ul>
     <li><a href="#usage">Usage</a>
       <ul>
@@ -64,82 +67,14 @@
   </ul>
 </div>
 
-#### Getting Started
-
-To get started, clone this repository and navigate to the project directory:
-
-```
-git clone https://github.com/konstantin-evo/microservices-in-go.git
-cd microservices-in-go
-```
-
-You can run the application locally using Docker compose or on a Kubernetes cluster.
-
-##### Docker compose
-
-**Prerequisites**:
-
-* Go 1.18
-* Docker
-* MongoDB Compass (only to see data in MongoDB database via GUI)
-
-1. Start the project using docker-compose
-2. Build front-end app
-3. Run app
-
-```
-cd ./project && docker-compose up -d
-cd ./../front-end && env CGO_ENABLED=0 go build -o frontApp ./cmd/web
-./frontApp 
-```
-
-Endpoints:
-
-| Service     | URL                     | Credentials                                                              | Description                        |
-|-------------|-------------------------|--------------------------------------------------------------------------|------------------------------------|
-| Front-end   | http://localhost        | -                                                                        | The main application interface     |
-| Mail server | http://localhost:8025/  | -                                                                        | MailHog UI to view captured emails |
-| Database    | http://localhost:8089/  | POSTGRES_USER: postgres, POSTGRES_PASSWORD: password, POSTGRES_DB: users | Access to the users database       |
-| RabbitMQ    | http://localhost:15672/ | guest:guest                                                              | RabbitMQ management console        |
-
-**Note**: To view the data in the "logs" database (used in Logging Service), it is necessary to install MongoDB Compass.
-
-<p>You can find more information about connection to PostgreSQL and MongoDB in the <a href="#environment-variables">Environment Variables</a> section</p>
-
-<p align="right">(<a href="#table-of-contents">back to the Table of content</a>)</p>
-
-##### Kubernetes
-
-**Prerequisites**:
-
-Before getting started, make sure you have the following installed on your machine:
-
-1. Docker
-2. kubectl
-3. A Kubernetes cluster such as Minikube or a cloud provider such as GKE or AKS
-
-Also, ensure that your Kubernetes cluster is properly configured and that you have appropriate permissions to deploy applications to it. If you are using a cloud provider, you may need to configure additional settings such as network policies or load balancers.
-
-The YAML files in the k8s directory define the deployments, services, and ingress resources needed to run the application on Kubernetes.
-
-To run project:
-
-1. Apply all the YAML files in the directory by running the `kubectl apply -f .` command
-2. Wait for all the services to start running.
-
-Once all the services are running, you should be able to access the application by navigating to the URL http://front-end.info
-
-![demo-k8s.gif](project%2Fsrc%2Fimg%2Fdemo-k8s.gif)
-
-<p align="right">(<a href="#table-of-contents">back to the Table of content</a>)</p>
-
 #### About project
 
-The "Microservices in Go" project is an open-source code repository that demonstrates how to build microservices using
-the Go programming language. The repository consists of several modules, each of which is a separate microservice.
+The "Microservices in Go" project is an open-source code repository that showcases how to create microservices using the
+Go programming language. The repository consists of several modules, each representing a separate microservice.
 
-The project provides an example of how to build microservices using Go, and it also demonstrates various best
-practices and design patterns for microservice architecture.
+<p align="center" style="margin-top: 20px;">
+  <img src="project/src/img/microservices-architecture-diagram.png" width="95%" alt="Microservices Architecture Diagram">
+</p>
 
 Currently, the following services have been partially implemented:
 
@@ -152,55 +87,9 @@ Currently, the following services have been partially implemented:
 | Mail           | Takes a JSON payload, converts into a formatted email, and sends it out.                  |
 | Listener       | Receives messages from RabbitMQ and acts upon them.                                       |
 
-```mermaid
-graph TD
-    subgraph Frontend service
-        Frontend((Frontend))
-    end
-
-    subgraph Broker service
-        Broker((Broker Service))
-    end
-
-    subgraph Authentication service
-        Auth((Auth Service))
-        Database
-    end
-
-    subgraph Logger service
-        Logger((Logger Service))
-        Database_NoSQL
-    end
-
-    subgraph Mail service
-        Mail((Mail Service))
-    end
-
-    subgraph Listener service
-        Listener((Listener Service))
-    end
-
-    subgraph Database
-        PostgreSQL
-    end
-
-    subgraph Database_NoSQL
-        MongoDB
-    end
-
-    Frontend -- HTTP/HTTPS --> Broker
-    Broker -- HTTP/HTTPS --> Auth
-    Broker -- HTTP/HTTPS --> Mail
-    Broker -- AMQP --> RabbitMQ
-    Broker -- gRPC --> Logger
-    RabbitMQ -- AMQP --> Listener
-    Listener -- HTTP/HTTPS --> Logger
-    Auth -- HTTP/HTTPS --> Logger
-```
-
 ##### Project Structure
 
-This project represents a multiservice application consisting of a front-end, broker-service, authentication-service,
+This project represents a multi service application consisting of a front-end, broker-service, authentication-service,
 logging-service, and mail-service. Each service has its own Dockerfile and Go module configuration. The directory
 structure is as follows:
 
@@ -211,28 +100,22 @@ structure is as follows:
 │   ├── docker-compose.yml
 │   └── src
 │       ├── k8s
-│       │   ├── all-manifests.yaml
 │       │   ├── auth-service.yml
-│       │   ├── broker-service.yml
-│       │   ├── front-end.yml
-│       │   ├── ingress.yml
-│       │   ├── listener-service.yml
-│       │   ├── logger-service.yml
-│       │   ├── mail-service.yml
-│       │   ├── mailhog.yml
-│       │   ├── mongo.yml
-│       │   ├── postgres.yml
+│       │   ├─ ... other manifest
 │       │   └── rabbit.yml
+│       ├── grafana
+│       │   └── provisioning
+│       │       ├── dashboards
+│       │       └── datasources
+│       ├── prometheus
+│       │   └── prometheus.yaml
 │       └── script
 │           └── init.sql
 ├── authentication-service
 │   ├── authentication-service.dockerfile
 │   ├── cmd
 │   │   └── api
-│   │       ├── handlers.go
-│   │       ├── helpers.go
-│   │       ├── main.go
-│   │       └── routes.go
+│   │       └── main.go / routes.go / handlers.go / helpers.go
 │   ├── data
 │   │   └── models.go
 │   └── go.mod
@@ -240,73 +123,47 @@ structure is as follows:
 │   ├── broker-service.dockerfile
 │   ├── cmd
 │   │   └── api
-│   │       ├── handlers.go
-│   │       ├── helpers.go
-│   │       ├── main.go
-│   │       └── routes.go
+│   │       └── main.go / routes.go / handlers.go / helpers.go
 │   ├── data
 │   │   └── models.go
 │   ├── event
-│   │   ├── consumer.go
 │   │   ├── data
-│   │   │   └── models.go
-│   │   ├── emitter.go
-│   │   ├── event.go
-│   │   └── logger.go
+│   │   └── logger.go / event.go / emitter.go / consumer.go
 │   ├── logs
-│   │   ├── logs.pb.go
-│   │   ├── logs.proto
-│   │   └── logs_grpc.pb.go
+│   │   └── logs_grpc.pb.go / logs.proto / logs.pb.go
 │   └── go.mod
 ├── front-end
 │   ├── cmd
 │   │   └── web
 │   │       ├── main.go
 │   │       └── templates
-│   │           ├── base.layout.gohtml
-│   │           ├── footer.partial.gohtml
-│   │           ├── header.partial.gohtml
-│   │           └── test.page.gohtml
+│   │           └── ... 
 │   ├── frontend-service.dockerfile
 │   └── go.mod
 ├── listener-service
 │   ├── event
-│   │   ├── consumer.go
-│   │   ├── event.go
-│   │   └── logger.go
+│   │   └── logger.go / consumer.go / event.go
 │   ├── main.go
 │   ├── listener-service.dockerfile
 │   └── go.mod
 ├── logging-service
 │   ├── cmd
 │   │   └── api
-│   │       ├── handlers.go
-│   │       ├── helpers.go
-│   │       ├── main.go
-│   │       ├── rpc.go
-│   │       └── routes.go
+│   │       └── main.go / routes.go / handlers.go / helpers.go / rpc.go
 │   ├── data
 │   │   └── models.go
 │   ├── logs
-│   │   ├── logs.pb.go
-│   │   ├── logs.proto
-│   │   └── logs_grpc.pb.go
+│   │   └── logs_grpc.pb.go / logs.proto / logs.pb.go
 │   ├── logger-service.dockerfile
 │   └── go.mod
 └── mail-service
     ├── cmd
     │   └── api
-    │       ├── handlers.go
-    │       ├── helpers.go
-    │       ├── mailer.go
-    │       ├── main.go
-    │       └── routes.go
+    │       └── main.go / routes.go / handlers.go / helpers.go / mailer.go 
     ├── go.mod
     ├── mail-service.dockerfile
     └── templates
-        ├── mail.html.gohtml
-        └── mail.plain.gohtml
-
+        └── ...
 ```
 
 <p align="right">(<a href="#table-of-contents">back to the Table of content</a>)</p>
@@ -358,6 +215,131 @@ The MongoDB service uses the following environment variables:
 | MONGO_INITDB_DATABASE      | The name of the MongoDB database.           | logs     |
 | MONGO_INITDB_ROOT_USERNAME | The root username for the MongoDB database. | admin    |
 | MONGO_INITDB_ROOT_PASSWORD | The root password for the MongoDB database. | password |
+
+<p align="right">(<a href="#table-of-contents">back to the Table of content</a>)</p>
+
+### Monitoring
+
+Project includes a monitoring setup using Prometheus and Grafana, providing real-time insights and
+performance metrics.
+
+The Prometheus data source is used for all panels, ensuring high accuracy and reliability of the metrics. The dashboard
+is set to refresh every 5 seconds to provide real-time updates.
+
+<p align="center">
+  <img src="project/src/img/dashboard-http.png" width="95%" alt="Gin Application Metrics">
+</p>
+
+#### Dashboard Overview
+
+The monitoring dashboard includes several key panels, each visualizing critical metrics to help you track the health and
+performance of your application:
+
+1. **Application Response Time**
+    - **Description:** Measures the average time it takes for the application to respond to a request.
+    - **Metric:** `sum(rate(gin_request_duration_sum[$range])) / sum(rate(gin_request_duration_count[$range]))`
+    - **Visualization:** Line chart showing response time over the selected range.
+
+2. **Requests Per Second (RPS)**
+    - **Description:** Indicates the rate at which your application receives and processes incoming requests.
+    - **Metric:** `sum(rate(gin_request_total[$range]))`
+    - **Visualization:** Line chart displaying the number of requests per second over time.
+
+3. **PV Rate**
+    - **Description:** Shows the application request rate.
+    - **Metric:** `rate(gin_request_total[$range])`
+    - **Visualization:** Gauge displaying the rate of requests.
+
+4. **Method Distribution**
+    - **Description:** Breakdown of requests by method (GET, POST, etc.).
+    - **Metric:** `sum by(method) (gin_uri_request_total)`
+    - **Visualization:** Pie chart depicting the proportion of each method type.
+
+5. **Response Code Distribution**
+    - **Description:** Breakdown of HTTP response codes.
+    - **Metric:** `sum by(code, instance) (gin_uri_request_total)`
+    - **Visualization:** Pie chart showing the distribution of response codes (e.g., 200, 404).
+
+6. **Traffic In-Out**
+    - **Description:** Measures the traffic in and out of the application.
+    - **Metrics:**
+        - Inbound: `rate(gin_request_body_total[$range])`
+        - Outbound: `rate(gin_response_body_total[$range])`
+    - **Visualization:** Line chart showing inbound and outbound traffic rates.
+
+7. **Slow Request Detection**
+    - **Description:** Tracks slow requests to identify potential performance bottlenecks.
+    - **Metric:** `sum by(uri, instance) (gin_slow_request_total)`
+    - **Visualization:** Bar gauge indicating the number of slow requests.
+
+#### Getting Started
+
+To get started, clone this repository and navigate to the project directory:
+
+```
+git clone https://github.com/konstantin-evo/microservices-in-go.git
+cd microservices-in-go
+```
+
+You can run the application locally using Docker compose or on a Kubernetes cluster.
+
+##### Docker compose
+
+**Prerequisites**:
+
+* Go 1.18
+* Docker
+* MongoDB Compass (only to see data in MongoDB database via GUI)
+
+Start the project using docker-compose
+
+```
+cd ./project && docker-compose up -d
+```
+
+Endpoints:
+
+| Service     | URL                     | Credentials                                                              | Description                                |
+|-------------|-------------------------|--------------------------------------------------------------------------|--------------------------------------------|
+| Front-end   | http://localhost        | -                                                                        | The main application interface             |
+| Mail server | http://localhost:8025/  | -                                                                        | MailHog UI to view captured emails         |
+| Database    | http://localhost:8089/  | POSTGRES_USER: postgres, POSTGRES_PASSWORD: password, POSTGRES_DB: users | Access to the users database               |
+| RabbitMQ    | http://localhost:15672/ | guest:guest                                                              | RabbitMQ management console                |
+| Prometheus  | http://localhost:9090/  | -                                                                        | Prometheus monitoring and alerting toolkit |
+| Grafana     | http://localhost:3000/  | admin:admin                                                              | Grafana analytics and monitoring dashboard |
+
+**Note**: To view the data in the "logs" database (used in Logging Service), it is necessary to install MongoDB Compass.
+
+<p>You can find more information about connection to PostgreSQL and MongoDB in the <a href="#environment-variables">Environment Variables</a> section</p>
+
+<p align="right">(<a href="#table-of-contents">back to the Table of content</a>)</p>
+
+##### Kubernetes
+
+**Prerequisites**:
+
+Before getting started, make sure you have the following installed on your machine:
+
+1. Docker
+2. kubectl
+3. A Kubernetes cluster such as Minikube or a cloud provider such as GKE or AKS
+
+Also, ensure that your Kubernetes cluster is properly configured and that you have appropriate permissions to deploy
+applications to it. If you are using a cloud provider, you may need to configure additional settings such as network
+policies or load balancers.
+
+The YAML files in the k8s directory define the deployments, services, and ingress resources needed to run the
+application on Kubernetes.
+
+To run project:
+
+1. Apply all the YAML files in the directory by running the `kubectl apply -f .` command
+2. Wait for all the services to start running.
+
+Once all the services are running, you should be able to access the application by navigating to the
+URL http://front-end.info
+
+![demo-k8s.gif](project%2Fsrc%2Fimg%2Fdemo-k8s.gif)
 
 <p align="right">(<a href="#table-of-contents">back to the Table of content</a>)</p>
 

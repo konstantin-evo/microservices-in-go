@@ -1,0 +1,234 @@
+<mxfile host="Electron" modified="2024-07-05T07:05:00.471Z" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/23.0.2 Chrome/120.0.6099.109 Electron/28.1.0 Safari/537.36" etag="8jPr35Mj-S8q2X7GiKl9" version="23.0.2" type="device">
+  <diagram name="Page-1" id="90a13364-a465-7bf4-72fc-28e22215d7a0">
+    <mxGraphModel dx="1451" dy="1052" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1.5" pageWidth="1169" pageHeight="826" background="none" math="0" shadow="0">
+      <root>
+        <mxCell id="0" style=";html=1;" />
+        <mxCell id="1" style=";html=1;" parent="0" />
+        <mxCell id="cD33Mf_GEymiumSfminc-98" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fillColor=#f5f5f5;strokeColor=#666666;" edge="1" parent="1" source="cD33Mf_GEymiumSfminc-74" target="cD33Mf_GEymiumSfminc-57">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="220" y="460" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-74" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#333333;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="160" y="460" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;fillColor=#f5f5f5;strokeColor=#666666;endArrow=open;endFill=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="468.35" y="290" as="sourcePoint" />
+            <mxPoint x="468.35" y="320" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-3" value="Frontend" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="420" y="230" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-4" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Go_Logo_Blue.svg/1280px-Go_Logo_Blue.svg.png;" vertex="1" parent="1">
+          <mxGeometry x="500" y="270" width="35.88" height="13.48" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-70" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1.004;exitY=0.822;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.416;entryY=-0.043;entryDx=0;entryDy=0;entryPerimeter=0;fillColor=#f5f5f5;strokeColor=#666666;endArrow=open;endFill=0;" edge="1" parent="1" source="cD33Mf_GEymiumSfminc-5" target="cD33Mf_GEymiumSfminc-13">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="610" y="460" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-92" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.333;exitY=0.993;exitDx=0;exitDy=0;entryX=-0.002;entryY=0.329;entryDx=0;entryDy=0;fillColor=#f5f5f5;strokeColor=#666666;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="cD33Mf_GEymiumSfminc-5" target="cD33Mf_GEymiumSfminc-15">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="460" y="400" />
+              <mxPoint x="340" y="400" />
+              <mxPoint x="340" y="600" />
+              <mxPoint x="510" y="600" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-93" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fillColor=#f5f5f5;strokeColor=#666666;startArrow=open;startFill=0;endArrow=none;endFill=0;" edge="1" parent="1" source="cD33Mf_GEymiumSfminc-5" target="cD33Mf_GEymiumSfminc-15">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="450" y="390" />
+              <mxPoint x="330" y="390" />
+              <mxPoint x="330" y="610" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-5" value="Broker Service" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="420" y="320" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-10" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Go_Logo_Blue.svg/1280px-Go_Logo_Blue.svg.png;" vertex="1" parent="1">
+          <mxGeometry x="500" y="360" width="35.88" height="13.48" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-11" value="HTTP / HTTPS" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="500" y="290" width="90" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-103" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;fillColor=#f5f5f5;strokeColor=#666666;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="830" y="460" as="sourcePoint" />
+            <mxPoint x="830" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-12" value="Listener Service" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="779" y="460" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fillColor=#f5f5f5;strokeColor=#666666;endArrow=open;endFill=0;" edge="1" parent="1" source="cD33Mf_GEymiumSfminc-20" target="cD33Mf_GEymiumSfminc-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-20" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#333333;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="779" y="320" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-19" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://www.rabbitmq.com/img/rabbitmq-logo-with-name.svg;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="788.5" y="341.91999999999996" width="101" height="16.16" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-23" value="AMPQ" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="630" y="311.91999999999996" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-25" value="AMPQ" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="853.62" y="403" width="51.56" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-26" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Go_Logo_Blue.svg/1280px-Go_Logo_Blue.svg.png;" vertex="1" parent="1">
+          <mxGeometry x="853.6199999999999" y="500" width="35.88" height="13.48" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-30" value="" style="group;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" connectable="0" parent="1">
+          <mxGeometry x="600" y="460" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-13" value="Mail&amp;nbsp;Service" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="cD33Mf_GEymiumSfminc-30">
+          <mxGeometry width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-27" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Go_Logo_Blue.svg/1280px-Go_Logo_Blue.svg.png;" vertex="1" parent="cD33Mf_GEymiumSfminc-30">
+          <mxGeometry x="80" y="40" width="35.88" height="13.48" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-32" value="" style="group;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" connectable="0" parent="1">
+          <mxGeometry x="510" y="580" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-15" value="Logger Service" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="cD33Mf_GEymiumSfminc-32">
+          <mxGeometry width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-29" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Go_Logo_Blue.svg/1280px-Go_Logo_Blue.svg.png;" vertex="1" parent="cD33Mf_GEymiumSfminc-32">
+          <mxGeometry x="77.12" y="40" width="35.88" height="13.48" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-33" value="" style="shape=datastore;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="480" y="620" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-34" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://miro.medium.com/v2/resize:fit:512/1*doAg1_fMQKWFoub-6gwUiQ.png;clipPath=inset(0% 31.67% 22% 32%);" vertex="1" parent="1">
+          <mxGeometry x="496.71000000000004" y="625" width="23.29059829059829" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-38" value="DB: mongoDB" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="460" y="680" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-45" value="gRPC" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="290" y="403" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-50" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;fillColor=#f5f5f5;strokeColor=#666666;endArrow=open;endFill=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="490" y="320" as="sourcePoint" />
+            <mxPoint x="490" y="290" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-97" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;fillColor=#f5f5f5;strokeColor=#666666;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="210" y="380" as="sourcePoint" />
+            <mxPoint x="210" y="460" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-57" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#333333;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="160" y="320" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-69" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.582;exitY=-0.011;exitDx=0;exitDy=0;entryX=0.582;entryY=1.018;entryDx=0;entryDy=0;entryPerimeter=0;exitPerimeter=0;fillColor=#f5f5f5;strokeColor=#666666;endArrow=open;endFill=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500.7099999999999" y="458.25999999999993" as="sourcePoint" />
+            <mxPoint x="500.7099999999999" y="379.99999999999994" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-83" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;fillColor=#f5f5f5;strokeColor=#666666;endArrow=open;endFill=0;" edge="1" parent="1" source="cD33Mf_GEymiumSfminc-14" target="cD33Mf_GEymiumSfminc-15">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="480" y="560" />
+              <mxPoint x="540" y="560" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-84" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.58;exitY=1.003;exitDx=0;exitDy=0;entryX=0.333;entryY=-0.003;entryDx=0;entryDy=0;fillColor=#f5f5f5;strokeColor=#666666;endArrow=none;endFill=0;exitPerimeter=0;entryPerimeter=0;startArrow=open;startFill=0;" edge="1" parent="1" source="cD33Mf_GEymiumSfminc-14" target="cD33Mf_GEymiumSfminc-15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-14" value="Authentication&lt;br&gt;Service" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="420" y="460" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-63" value="" style="group" vertex="1" connectable="0" parent="1">
+          <mxGeometry x="370" y="500" width="100" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-35" value="" style="shape=datastore;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" vertex="1" parent="cD33Mf_GEymiumSfminc-63">
+          <mxGeometry x="20" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-37" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://images.g2crowd.com/uploads/product/image/social_landscape/social_landscape_251be2af3ae607c45c14e816eaa1cf41/postgresql.png;clipPath=inset(10.13% 27.33% 26.58% 28%);" vertex="1" parent="cD33Mf_GEymiumSfminc-63">
+          <mxGeometry x="23.82000000000005" y="20.940000000000055" width="52.35" height="39.063257462686565" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-39" value="DB: postgreSQL" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="cD33Mf_GEymiumSfminc-63">
+          <mxGeometry y="60" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-28" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Go_Logo_Blue.svg/1280px-Go_Logo_Blue.svg.png;" vertex="1" parent="1">
+          <mxGeometry x="497.12" y="500" width="35.88" height="13.48" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-68" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.413;exitY=1.007;exitDx=0;exitDy=0;entryX=0.416;entryY=0.001;entryDx=0;entryDy=0;entryPerimeter=0;exitPerimeter=0;fillColor=#f5f5f5;strokeColor=#666666;endArrow=open;endFill=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="490.55999999999995" y="380.41999999999996" as="sourcePoint" />
+            <mxPoint x="490.91999999999985" y="460.06000000000006" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-71" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.999;entryY=0.658;entryDx=0;entryDy=0;entryPerimeter=0;fillColor=#f5f5f5;strokeColor=#666666;endArrow=open;endFill=0;" edge="1" parent="1" source="cD33Mf_GEymiumSfminc-13" target="cD33Mf_GEymiumSfminc-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-72" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://miro.medium.com/v2/resize:fit:707/1*SW3lqH4V0J0suyzkZ6FcFQ.png;" vertex="1" parent="1">
+          <mxGeometry x="180" y="326.74" width="80" height="46.51" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-73" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://www.skedler.com/blog/wp-content/uploads/2021/08/grafana-logo.png;" vertex="1" parent="1">
+          <mxGeometry x="166.74" y="463.37" width="106.52" height="53.26" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-79" value="HTTP / HTTPS" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="510" y="403" width="90" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-80" value="HTTP / HTTPS" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="669" y="403" width="90" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-81" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;fillColor=#f5f5f5;strokeColor=#666666;endArrow=open;endFill=0;" edge="1" parent="1" source="cD33Mf_GEymiumSfminc-13" target="cD33Mf_GEymiumSfminc-15">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="660" y="560" />
+              <mxPoint x="600" y="560" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-82" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.412;exitY=1.005;exitDx=0;exitDy=0;entryX=0.664;entryY=0;entryDx=0;entryDy=0;exitPerimeter=0;entryPerimeter=0;fillColor=#f5f5f5;strokeColor=#666666;endArrow=none;endFill=0;startArrow=open;startFill=0;" edge="1" parent="1" source="cD33Mf_GEymiumSfminc-13" target="cD33Mf_GEymiumSfminc-15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-90" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fillColor=#f5f5f5;strokeColor=#666666;endArrow=open;endFill=0;" edge="1" parent="1" source="cD33Mf_GEymiumSfminc-5" target="cD33Mf_GEymiumSfminc-20">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="540.36" y="348.04" as="sourcePoint" />
+            <mxPoint x="720.36" y="348.04" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-91" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.009;exitY=0.331;exitDx=0;exitDy=0;entryX=0.992;entryY=0.335;entryDx=0;entryDy=0;entryPerimeter=0;fillColor=#f5f5f5;strokeColor=#666666;endArrow=open;endFill=0;exitPerimeter=0;" edge="1" parent="1" source="cD33Mf_GEymiumSfminc-20" target="cD33Mf_GEymiumSfminc-5">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="719.7600000000003" y="337.9600000000001" as="sourcePoint" />
+            <mxPoint x="539.9999999999999" y="337.9600000000001" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-95" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=-0.004;exitY=0.33;exitDx=0;exitDy=0;entryX=0.998;entryY=0.336;entryDx=0;entryDy=0;entryPerimeter=0;fillColor=#f5f5f5;strokeColor=#666666;endArrow=open;endFill=0;exitPerimeter=0;" edge="1" parent="1" source="cD33Mf_GEymiumSfminc-5" target="cD33Mf_GEymiumSfminc-57">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="520" y="341.53999999999996" as="sourcePoint" />
+            <mxPoint x="279" y="341.53999999999996" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-96" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fillColor=#f5f5f5;strokeColor=#666666;endArrow=open;endFill=0;" edge="1" parent="1" target="cD33Mf_GEymiumSfminc-5">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="281" y="349.76" as="sourcePoint" />
+            <mxPoint x="520" y="349.76" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-100" value="HTTP / HTTPS" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="300" y="311.92" width="90" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cD33Mf_GEymiumSfminc-101" value="HTTP / HTTPS" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="110" y="403" width="90" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

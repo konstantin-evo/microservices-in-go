@@ -2,10 +2,9 @@ version: '3'
 
 services:
 
+# api services
   broker-service:
-    build:
-      context: ./../broker-service
-      dockerfile: ./../broker-service/broker-service.dockerfile
+    image: konstantinevo/microservices-in-go-broker:1.0.0
     restart: always
     ports:
       - "8080:80"
@@ -13,19 +12,24 @@ services:
       mode: replicated
       replicas: 1
 
+  front-service:
+    image: konstantinevo/microservices-in-go-frontend:1.0.0
+    restart: always
+    ports:
+      - "80:80"
+    deploy:
+      mode: replicated
+      replicas: 1
+
   logger-service:
-    build:
-      context: ./../logging-service
-      dockerfile: ./../logging-service/logger-service.dockerfile
+    image: konstantinevo/microservices-in-go-logger:1.0.0
     restart: always
     deploy:
       mode: replicated
       replicas: 1
 
   authentication-service:
-    build:
-      context: ./../authentication-service
-      dockerfile: ./../authentication-service/authentication-service.dockerfile
+    image: konstantinevo/microservices-in-go-authentication:1.0.0
     restart: always
     ports:
       - "8082:80"
@@ -36,9 +40,7 @@ services:
       DSN: "host=postgres port=5432 user=postgres password=password dbname=users sslmode=disable timezone=UTC connect_timeout=5"
 
   mailer-service:
-    build:
-      context: ./../mail-service
-      dockerfile: ./../mail-service/mail-service.dockerfile
+    image: konstantinevo/microservices-in-go-mailer:1.0.0
     restart: always
     deploy:
       mode: replicated
@@ -54,13 +56,38 @@ services:
       FROM_ADDRESS: konstantin.evo@example.com
 
   listener-service:
-    build:
-      context: ./../listener-service
-      dockerfile: ./../listener-service/listener-service.dockerfile
+    image: konstantinevo/microservices-in-go-listener:1.0.0
     deploy:
       mode: replicated
       replicas: 1
 
+# monitoring services
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    volumes:
+      - ./src/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./db-data/prometheus:/prometheus
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.4.4
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_DATASOURCE=prometheus
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    volumes:
+      - ./src/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./db-data/grafana:/var/lib/grafana
+    restart: always
+    depends_on:
+      - prometheus
+
+# utility services
   mailhog:
     image: 'mailhog/mailhog:v1.0.1'
     ports:
@@ -106,7 +133,7 @@ services:
       - ./db-data/mongo/:/data/db
   
   db-adminer:
-    image: adminer
+    image: 'adminer:4.8.1'
     restart: always
     ports:
       - "8089:8080"

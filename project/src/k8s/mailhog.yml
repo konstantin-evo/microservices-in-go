@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: mailhog
-        image: "mailhog/mailhog:latest"
+        image: "mailhog/mailhog:v1.0.1"
         resources:
           requests:
             memory: "64Mi"
